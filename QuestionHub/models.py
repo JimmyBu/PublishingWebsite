@@ -1,16 +1,33 @@
 from django.db import models
-from django.contrib.auth.models import User
 
+class User(models.Model):
+    id = models.AutoField(primary_key=True, editable=False)
+    name = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    num_posts = models.IntegerField(default=0)
+    num_comments = models.IntegerField(default=0)
+    karma = models.IntegerField(default=0)
 
-class Question(models.Model):
+class Post(models.Model):
+    id = models.AutoField(primary_key=True, editable=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    content = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    body = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    score = models.IntegerField(default=0)
 
-
-class Answer(models.Model):
-    content = models.TextField()
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class Comment(models.Model):
+    id = models.AutoField(primary_key=True, editable=False)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
+    parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    is_nested_comment = models.BooleanField(default=False)
+    comment_number = models.IntegerField(default=0)
+    body = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    score = models.IntegerField(default=0)
+
+class Topic(models.Model):
+    id = models.AutoField(primary_key=True, editable=False)
+    topic_name = models.CharField(max_length=255)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)

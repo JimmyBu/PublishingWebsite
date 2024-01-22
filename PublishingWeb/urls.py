@@ -20,8 +20,8 @@ from QuestionHub import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('questions/', views.question_list, name='question_list'),
-    path('question/<int:pk>/', views.question_detail, name='question_detail'),
-    path('ask/', views.ask_question, name='ask_question'),
-    path('', views.question_list, name='home'),
+    path('questions/', views.post_list, name='question_list'),
+    path('question/<int:pk>/', views.post_detail, name='question_detail'),
+    path('ask/', views.create_post, name='ask_question'),
+    path('', views.post_list, name='home'),
 ]
