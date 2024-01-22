@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Post</title>
+</head>
+<body>
+    <h2>Create Post</h2>
+    <form method="post" action="{% url 'ask_question' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create post</button>
+    </form>
+</body>
+</html>
