@@ -1,0 +1,28 @@
+<blockquote id="{{ comment_detail.id }}">
+    <p class="comment-body">{{ comment_detail.body }}</p>
+    <small class="comment-user">{{ comment_detail.user.username }}</small>
+
+    <!--create a reply button-->
+    {% if user.is_authenticated %}
+        <button class="reply">Reply</button>
+    {% endif %}
+
+    <!--allow replies for comments-->
+    <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container">
+        <form method="POST" action="/reply/" class="reply-form">
+            {% csrf_token %}
+            <input type="hidden" name="post" value="{{ post.id }}"/>
+            <input type="hidden" name="parent" value="{{ comment_detail.id }}"/>
+            {{ reply.body }}  <!--get from the reply form-->
+            <button type="button" class="cancel-button">Cancel</button>
+            <input type="submit" class="reply-button" value="Send"/>
+        </form>
+    </blockquote>
+
+    <!--list all the replies under specific parent comment-->
+    {% for replies in comment_detail.get_comment %}
+        {% include 'comments.html' with comment_detail=replies %}
+        <!--suck at naming...-->
+    {% endfor %}
+
+</blockquote>
