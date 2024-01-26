@@ -1,14 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Post</title>
-</head>
-<body>
-    <h2>Create Post</h2>
-    <form method="post" action="{% url 'ask_question' %}">
+{% extends './base.html' %}
+
+{% block post %}
+<div class="create-post-Page">
+    <h2 class="create-title">Create a Post</h2>
+    <form method="POST" action="" class="Post-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create post</button>
+        <div class="fields">
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            <span class="error">{{ form.title.errors }}</span>
+        </div>
+        <div class="fields">
+            <label for="{{ form.body.id_for_label }}">Body</label>
+            {{ form.body }}
+            <span class="error">{{ form.body.errors }}</span>
+        </div>
+    <input type="submit" value="Submit" class="submit-button"/>
     </form>
-</body>
-</html>
+</div>
+
+{% endblock %}

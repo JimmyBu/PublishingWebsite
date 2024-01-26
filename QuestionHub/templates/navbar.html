@@ -1,0 +1,28 @@
+<nav class="navbar">
+    <div class="main-menu">
+        <ul>
+            <li>
+                <a href="{% url 'home' %}">Posts</a>
+            </li>
+        </ul>
+    </div>
+    <div class="user-menu">
+        <ul>
+            {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'create_post' %}">Create a Post</a>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}">Log out</a>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url 'login' %}">Log in</a>
+            </li>
+            <li>
+                <a href="{% url 'register' %}">Register</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

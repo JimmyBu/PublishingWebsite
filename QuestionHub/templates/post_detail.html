@@ -1,0 +1,35 @@
+{% extends './base.html' %}
+
+{% block post %}
+<div class="post-Page">
+    <h2 class="post-title">{{ post.title }}</h2>
+    <p class="post-body">{{ post.body }}</p>
+    <span class="post-author">author : {{ post.author.username }}</span>
+
+    <div class="comment-container">
+        <h4 class="comment-heading">Comments</h4>
+
+        {% if not post.comments.all %}
+            <!--a buffer for showing no comments yet-->
+            <p class="no-comments">Become the first comment.</p>
+        {% else %}
+            {% for comment_detail in post.get_comment %}
+                {% include 'comments.html' with comment_detail=comment_detail %}
+                <!--this comment_detail is parsed into the comments as the variables there-->
+            {% endfor %}
+        {% endif %}
+    </div>
+
+
+    {% if user.is_authenticated %}
+        <form method="POST" action="" class="respond-form">
+        {% csrf_token %}
+        <label for="{{ comment.body.id_for_label }}">Your Comment:</label>
+        {{ comment.body }} <!--get the comment form-->
+        <input type="submit" value="send" class="submit-button"/>
+        </form>
+    {% endif %}
+
+</div>
+
+{% endblock %}
