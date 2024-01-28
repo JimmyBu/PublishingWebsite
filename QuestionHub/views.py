@@ -7,12 +7,6 @@ from .models import Post, Comment, Topic
 from .forms import PostForm, CommentForm
 from django.http import JsonResponse
 from django.core.serializers import serialize
-from rest_framework import serializers
-
-class PostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = '__all__'
 
 def post_list(request):
     Post.objects.all().delete()
@@ -31,9 +25,6 @@ def post_list(request):
    
     posts = Post.objects.all()
     return render(request, 'view_posts.html', {'posts': posts})
-   
-    #serializer = PostSerializer(posts, many=True)
-    #return JsonResponse({'posts': serializer.data}, safe=False)
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
