@@ -5,7 +5,7 @@
 </head>
 <body>
     <h2>Create Post</h2>
-    <form method="post" action="{% url 'ask_question' %}">
+    <form method="post" action="{% url 'create_post' %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Create post</button>

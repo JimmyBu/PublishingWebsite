@@ -24,7 +24,7 @@ class Post(models.Model):
 class Comment(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
    # author = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, null=False, blank=True, on_delete=models.CASCADE)
     parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     is_nested_comment = models.BooleanField(default=False)
     comment_number = models.IntegerField(default=0)
