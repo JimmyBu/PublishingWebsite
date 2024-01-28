@@ -25,10 +25,10 @@ def post_list(request):
     Comment.objects.create(id = 4, post = Post.objects.get(id=1), parent_comment = Comment.objects.get(id=1), is_nested_comment = True, comment_number = 4, body = "imagine if someone called u stupid how would u feel", score = 1)
  
     Topic.objects.create(id = 2, topic_name = "ECE651")
-    Post.objects.create(id = 2, topic = Topic.objects.get(id=2), title = "Prof. Czarneki", body = "Is Prof. Czarnecki any good? I heard he sucks and wanted to confirm. Thanks", score = 2)
-    Comment.objects.create(id = 5, post = Post.objects.get(id=2), parent_comment = None, is_nested_comment = False, comment_number = 1, body = "yeah i have him now and he sucks", score = 1)
-    Comment.objects.create(id = 6, post = Post.objects.get(id=2), parent_comment = Comment.objects.get(id=5), is_nested_comment = True, comment_number = 2, body = "Thank you", score = 2)
-    Post.objects.create(id = 3, topic = Topic.objects.get(id=2), title = "Prof. Czarneki", body = "Is Prof. Czarnecki any good? I heard he sucks and wanted to confirm. Thanks", score = 2)
+    Post.objects.create(id = 2, topic = Topic.objects.get(id=2), title = "Sample Post 1", body = "Sample Post", score = 2)
+    Comment.objects.create(id = 5, post = Post.objects.get(id=2), parent_comment = None, is_nested_comment = False, comment_number = 1, body = "Sample Comment 1", score = 1)
+    Comment.objects.create(id = 6, post = Post.objects.get(id=2), parent_comment = Comment.objects.get(id=5), is_nested_comment = True, comment_number = 2, body = "Sample Comment 2", score = 2)
+   
     posts = Post.objects.all()
     return render(request, 'view_posts.html', {'posts': posts})
    
