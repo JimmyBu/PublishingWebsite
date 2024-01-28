@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homepage</title>
+    <style>
+        .comment {
+            margin-left: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .nested-comment {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-left: 40px;
+        }
+
+        .double-nested-comment {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-left: 60px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>{{post.title}}</h1>
+    <div>
+        <h2>{{ post.topic.topic_name  }}</h2>
+        <p><strong>Body:</strong> {{ post.body }}</p>
+        <p><strong>Author:</strong> {{ post.author.name }}</p>
+        <p><strong>Timestamp:</strong> {{ post.timestamp }}</p>  
+        <p><strong>Score:</strong> {{ post.score }}</p>
+        <a href="{% url 'home' %}">Hide</a>
+        <br></br>
+        <a href="{% url 'create_post' %}">Leave a Comment</a>
+        <h3>Comments:</h3>
+        {% for comment in post.comment_set.all %}
+            <div class="{% if comment.is_nested_comment %}{% if comment.parent_comment.is_nested_comment %}double-nested-comment{% else %}nested-comment{% endif %}{% else %}comment{% endif %}">
+                <p><strong>Commenter:</strong> {{ comment.author.name }}</p>
+                <p><strong>Body:</strong> {{ comment.body }}</p>
+                <p><strong>Timestamp:</strong> {{ comment.timestamp }}</p>
+                <p><strong>Score:</strong> {{ comment.score }}</p>
+                <a href="{% url 'create_post' %}">Reply</a>
+                <a href="{% url 'create_post' %}">Upvote</a>
+                <a href="{% url 'create_post' %}">Downvote</a>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+    <hr>
+</body>
+</html>
