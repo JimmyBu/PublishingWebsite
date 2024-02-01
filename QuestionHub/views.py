@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .models import Post, Comment, Topic
 from .forms import PostForm, CommentForm
+from .views_user import *
 from django.http import JsonResponse
 from django.core.serializers import serialize
 
