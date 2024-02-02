@@ -2,19 +2,29 @@
 
 {% block post %}
 <div class="post-Page">
-    <h2 class="post-title">{{ post.title }}</h2>
-    <p class="post-body">{{ post.body }}</p>
-    <span class="post-author">author : {{ post.author.username }}</span>
-
+    <h1 class="post-list-title">
+        {{ post.title }}
+    </h1>
+    <h2>{{ post.topic.topic_name  }}</h2>
+    <p> {{ post.body }}</p>
+    <br></br>
+    Score: <b> {{ post.score }} </b>
+    <a href="{% url 'post_detail' post.id %}">Upvote</a>
+    <a href="{% url 'post_detail' post.id %}">Downvote</a>
+    Submitted By: <b>{{ post.author.username }}</b>
+    Date: <b>{{ post.timestamp }}</b>
+</div>
     <div class="comment-container">
+        <br>
         <h4 class="comment-heading">Comments</h4>
-
+        </br>
         {% if not post.comments.all %}
             <!--a buffer for showing no comments yet-->
             <p class="no-comments">Become the first comment.</p>
         {% else %}
             {% for comment_detail in post.get_comment %}
                 {% include 'comments.html' with comment_detail=comment_detail %}
+            
                 <!--this comment_detail is parsed into the comments as the variables there-->
             {% endfor %}
         {% endif %}
@@ -26,10 +36,11 @@
         {% csrf_token %}
         <label for="{{ comment.body.id_for_label }}">Your Comment:</label>
         {{ comment.body }} <!--get the comment form-->
-        <input type="submit" value="send" class="submit-button"/>
+        <input type="submit" value="Send" class="submit-button"/>
         </form>
     {% endif %}
 
 </div>
 
 {% endblock %}
+

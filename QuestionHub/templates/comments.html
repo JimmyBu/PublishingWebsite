@@ -1,14 +1,15 @@
 <blockquote id="{{ comment_detail.id }}">
-    <p class="comment-body">{{ comment_detail.body }}</p>
-    <small class="comment-user">{{ comment_detail.user.username }}</small>
+    <p> {{ comment_detail.body }}</p>
+    <br></br>
+    Score: <b> {{ comment_detail.score }} </b>
+    <a href="{% url 'post_detail' post.id %}">Upvote</a>
+    <a href="{% url 'post_detail' post.id %}">Downvote</a>
+    Submitted By: <b>{{ comment_detail.user.username }}</b>
+    Date: <b>{{  comment_detail.timestamp}}</b>
 
-    <!--create a reply button-->
-    {% if user.is_authenticated %}
-        <button class="reply">Reply</button>
-    {% endif %}
 
     <!--allow replies for comments-->
-    <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container">
+    <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container" style=:"display: none;">
         <form method="POST" action="/reply/" class="reply-form">
             {% csrf_token %}
             <input type="hidden" name="post" value="{{ post.id }}"/>
@@ -16,6 +17,12 @@
             {{ reply.body }}  <!--get from the reply form-->
             <button type="button" class="cancel-button">Cancel</button>
             <input type="submit" class="reply-button" value="Send"/>
+            {% if user.is_authenticated %}
+            <!-- Delete button for authenticated users -->
+            {% if user.id == comment_detail.user.id %}
+                <button class="delete-comment">Delete</button>
+            {% endif %}
+        {% endif %}
         </form>
     </blockquote>
 
