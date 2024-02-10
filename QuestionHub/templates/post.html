@@ -15,7 +15,7 @@
             Score: <b> {{ post.score }} </b>
             <a href="{% url 'post_detail' post.id %}">Upvote</a>
             <a href="{% url 'post_detail' post.id %}">Downvote</a>
-            Submitted By: <b>{{ post.author.username }}</b>
+            Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
             Date: <b>{{ post.timestamp }}</b>
             <a href="{% url 'post_detail' post.id %}">View Comments</a>
     </div>

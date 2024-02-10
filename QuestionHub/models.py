@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from .models_user import *
 
 # problem of comment, the null and blank on the post and comment side makes a controversial.
 """class User(models.Model):

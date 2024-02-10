@@ -21,8 +21,13 @@ from QuestionHub import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register', views.Register, name='register'),
+    path('profile', views.my_profile, name='my_profile'),
+    path('profile/', views.my_profile, name='my_profile'),
+    path('profile/<int:id>/', views.user_profile, name='user_profile'),
     path('login', views.Login, name='login'),
+    path('login/', views.Login, name='login'),
     path('logout', views.Logout, name='logout'),
+    path('logout/', views.Logout, name='logout'),
     path('reply/', views.reply_list, name='reply'),
     path('post/<int:id>/', views.post_detail, name='post_detail'),
     path('ask/', views.create_post, name='create_post'),
