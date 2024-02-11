@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f6f6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .profile-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .profile-info h2 {
+            margin-top: 0;
+        }
+
+        .profile-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .profile-image img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>My Profile</h1>
+        </header>
+        <div class="content">
+            <div class="profile-info">
+                <h2>{{ user.username }}</h2>
+                <div id="bio-section">
+                    <p id="bio">{{ user.userprofile.bio }}</p>
+                    <button id="edit-btn">Edit</button>
+                </div>
+                <form id="bio-form" style="display: none;" method="POST" action="" class="respond-form">
+                    {% csrf_token %}
+                    {{ bio_form.bio }} <!--get the bio edit form-->
+                    <button type="submit" value="Send" class="submit-button">Save</button>
+                    <button type="button" id="cancel-btn">Cancel</button>
+                </form>
+                <p><strong>Number of Posts:</strong> {{ user.userprofile.num_posts }}</p>
+                <p><strong>Number of Comments:</strong> {{ user.userprofile.num_comments }}</p>
+                <p><strong>Karma:</strong> {{ user.userprofile.karma }}</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Get references to DOM elements
+        const bioSection = document.getElementById('bio-section');
+        const bioForm = document.getElementById('bio-form');
+        const editBtn = document.getElementById('edit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        // Function to toggle between displaying bio text and bio form
+        function toggleBioEdit() {
+            if (bioSection.style.display !== 'none') {
+                bioSection.style.display = 'none';
+                bioForm.style.display = 'block';
+            } else {
+                bioSection.style.display = 'block';
+                bioForm.style.display = 'none';
+            }
+        }
+
+        // Event listener for edit button click
+        editBtn.addEventListener('click', toggleBioEdit);
+
+        // Event listener for cancel button click
+        cancelBtn.addEventListener('click', toggleBioEdit);
+    </script>
+</body>
+</html>

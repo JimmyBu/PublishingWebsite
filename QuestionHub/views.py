@@ -1,9 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from .models import Post, Response
 from .forms import *
+from .views_user import *
 
 
 def Home(request):
@@ -38,52 +38,6 @@ def post_detail(request, id):
         'reply': reply
     }
     return render(request, 'post_detail.html', context)
-
-
-def Register(request):
-    form = RegisterUserForm()
-    if request.method == "POST":
-        try:
-            form = RegisterUserForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                login(request, user)
-                return redirect('home')
-        except Exception as e:
-            raise e  # Define the error
-
-    context = {
-        'form': form
-    }
-    return render(request, 'user.html', context)
-
-
-# sketches
-def Login(request):
-    form = LoginForm
-
-    if request.method == "POST":
-        try:
-            form = LoginForm(data=request.POST)
-            if form.is_valid():
-                user = form.get_user()
-                login(request, user)
-                # need to save the user data into the database.
-                # I am not sure it is saved or not
-                return redirect('home')
-        except Exception as e:
-            raise e
-
-    context = {
-        'form': form
-    }
-    return render(request, 'login.html', context)
-
-
-@login_required(login_url='register')
-def Logout(request):
-    logout(request)
-    return redirect('login')
 
 
 @login_required(login_url='register')

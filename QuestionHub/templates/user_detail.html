@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author Details - {{user.username}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f6f6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .profile-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .profile-info h2 {
+            margin-top: 0;
+        }
+
+        .profile-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .profile-image img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Author Profile - {{user.username}}</h1>
+        </header>
+        <div class="content">
+            <div class="profile-info">
+                <h2>{{ user.username }}</h2>
+                <p><strong>Bio:</strong> {{ user.userprofile.bio }}</p>
+                <p><strong>Number of Posts:</strong> {{ user.userprofile.num_posts }}</p>
+                <p><strong>Number of Comments:</strong> {{ user.userprofile.num_comments }}</p>
+                <p><strong>Karma:</strong> {{ user.userprofile.karma }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
