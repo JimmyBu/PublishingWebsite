@@ -25,6 +25,8 @@ urlpatterns = [
     path('logout', views.Logout, name='logout'),
     path('reply/', views.reply_list, name='reply'),
     path('post/<int:id>/', views.post_detail, name='post_detail'),
+    path('comment/<int:pk>/<str:vote>/', views.upvote_comment, name='upvote_comment'),
+    path('post/<int:pk>/<str:vote>/', views.upvote_post, name='upvote_post'),
     path('ask/', views.create_post, name='create_post'),
     path('', views.Home, name='home'),
 ]

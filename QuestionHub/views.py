@@ -79,6 +79,27 @@ def Login(request):
     }
     return render(request, 'login.html', context)
 
+def upvote_comment(request, pk, vote):
+    comment = get_object_or_404(Response, pk=pk)
+    if vote == 'U':
+        comment.score += 1
+    else:
+        comment.score -= 1
+    comment.save()
+    
+    original_url = request.META.get('HTTP_REFERER', '/default/url/')
+    return redirect(original_url)
+
+def upvote_post(request, pk, vote):
+    post = get_object_or_404(Post, pk=pk)
+    if vote == 'U':
+        post.score += 1
+    else:
+        post.score -= 1
+    post.save()
+    
+    original_url = request.META.get('HTTP_REFERER', '/default/url/')
+    return redirect(original_url)
 
 @login_required(login_url='register')
 def Logout(request):

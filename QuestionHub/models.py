@@ -46,6 +46,7 @@ class Post(models.Model):
     title = models.CharField(max_length=255, null=False)
     body = models.TextField(null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+    score = models.IntegerField(default=0)
 
     # define a readable title
     def __str__(self):
@@ -61,6 +62,7 @@ class Response(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     body = models.TextField(null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+    score = models.IntegerField(default=0)
 
     def __str__(self):
         return self.body

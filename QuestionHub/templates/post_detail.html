@@ -9,8 +9,8 @@
     <p> {{ post.body }}</p>
     <br></br>
     Score: <b> {{ post.score }} </b>
-    <a href="{% url 'post_detail' post.id %}">Upvote</a>
-    <a href="{% url 'post_detail' post.id %}">Downvote</a>
+    <a href="{% url 'upvote_post' post.id 'U' %}">Upvote</a>
+    <a href="{% url 'upvote_post' post.id 'D' %}">Downvote</a>
     Submitted By: <b>{{ post.author.username }}</b>
     Date: <b>{{ post.timestamp }}</b>
 </div>
