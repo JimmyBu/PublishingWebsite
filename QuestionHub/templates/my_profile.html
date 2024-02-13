@@ -1,0 +1,54 @@
+{% extends './base.html' %}
+{% block my_profile %}
+<body>
+    <div class="user-container">
+        <header class="user-header">
+            <h1>My Profile</h1>
+        </header>
+        <div class="user-content">
+            <div class="profile-info">
+                <h2>{{ user.username }}</h2>
+                <button id="edit-btn">Edit</button>
+                <div id="bio-section">
+                    <p id="bio">{{ user.userprofile.bio }}</p>
+                    
+                </div>
+                <form id="bio-form" style="display: none;" method="POST" action="" class="respond-form">
+                    {% csrf_token %}
+                    {{ bio_form.bio }} <!--get the bio edit form-->
+                    <button type="submit" value="Send" class="submit-button">Save</button>
+                    <button type="button" id="cancel-btn">Cancel</button>
+                </form>
+                <p><strong>Number of Posts:</strong> {{ user.userprofile.num_posts }}</p>
+                <p><strong>Number of Comments:</strong> {{ user.userprofile.num_comments }}</p>
+                <p><strong>Karma:</strong> {{ user.userprofile.karma }}</p>
+                
+            </div>
+        </div>
+    </div>
+    <script>
+        // Get references to DOM elements
+        const bioSection = document.getElementById('bio-section');
+        const bioForm = document.getElementById('bio-form');
+        const editBtn = document.getElementById('edit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        // Function to toggle between displaying bio text and bio form
+        function toggleBioEdit() {
+            if (bioSection.style.display !== 'none') {
+                bioSection.style.display = 'none';
+                bioForm.style.display = 'block';
+            } else {
+                bioSection.style.display = 'block';
+                bioForm.style.display = 'none';
+            }
+        }
+
+        // Event listener for edit button click
+        editBtn.addEventListener('click', toggleBioEdit);
+
+        // Event listener for cancel button click
+        cancelBtn.addEventListener('click', toggleBioEdit);
+    </script>
+</body>
+{% endblock my_profile %}

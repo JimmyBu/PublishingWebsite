@@ -11,6 +11,11 @@
             <span class="error">{{ form.title.errors }}</span>
         </div>
         <div class="fields">
+            <label for="{{ form.topic.id_for_label }}">Topic</label>
+            {{ form.topic }}
+            <span class="error">{{ form.topic.errors }}</span>
+        </div>       
+        <div class="fields">
             <label for="{{ form.body.id_for_label }}">Body</label>
             {{ form.body }}
             <span class="error">{{ form.body.errors }}</span>
