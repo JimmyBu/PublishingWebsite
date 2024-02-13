@@ -273,7 +273,138 @@
                 background-color: #0056b3;
             }
 
+            .create-topic-Page {
+                max-width: 400px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                background-color: #f9f9f9;
+            }
             
+            .create-topic-Page .create-title {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            
+            .create-topic-Page .Topic-form {
+                margin-bottom: 20px;
+            }
+            
+            .create-topic-Page .fields {
+                margin-bottom: 15px;
+            }
+            
+            .create-topic-Page label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            
+            .create-topic-Page input[type="text"] {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            
+            .create-topic-Page .error {
+                color: #dc3545;
+            }
+            
+            .create-topic-Page .submit-button {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+            
+            .create-topic-Page .submit-button:hover {
+                background-color: #0056b3;
+            }
+           
+            .current-topic {
+                font-weight: bold;
+                color: #000000; /* Black color */
+                font-size: 16px; /* Slightly bigger font size */
+                float: right; /* Align on the right */
+            }
+            .user-header { /* Updated class name */
+                background-color: #E4E4F8;
+                color: #000;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .user-container {
+                width: 80%;
+                margin: 0 auto;
+                padding-top: 20px;
+            }
+            .user-content { /* Updated class name */
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            
+
+            .profile-info {
+                text-align: left;
+            }
+            
+            #bio-section {
+                margin-top: 20px;
+            }
+            
+            #bio-form {
+                margin-top: 20px;
+            }
+            
+            #bio {
+                font-size: 16px;
+                line-height: 1.5;
+            }
+            
+            .submit-button,
+            #cancel-btn {
+                padding: 8px 20px;
+                margin-top: 10px;
+                border: none;
+                background-color: #4caf50;
+                color: #fff;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            
+            .submit-button:hover,
+            #cancel-btn:hover {
+                background-color: #45a049;
+            }
+            
+            #edit-btn {
+                background-color: #E4E4F8;
+                color: #000;
+                padding: 8px 20px;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            
+            #edit-btn:hover {
+                background-color: #7d7ddd;
+                color: #FFF;
+            }
+            
+            @media (max-width: 768px) {
+                .container {
+                    width: 90%;
+                }
+            }
             
         </style>
     </head>
@@ -283,6 +414,10 @@
     {% endblock %}
     {% block login %}
     {% endblock %}
+    {% block user_profile %}
+    {% endblock user_profile %}
+    {% block my_profile %}
+    {% endblock my_profile %}
     {% include 'post.html' %}
     {% block post %}
     {% endblock %}

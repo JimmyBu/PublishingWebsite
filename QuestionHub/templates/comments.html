@@ -2,9 +2,9 @@
     <p> {{ comment_detail.body }}</p>
     <br></br>
     Score: <b> {{ comment_detail.score }} </b>
-    <a href="{% url 'post_detail' post.id %}">Upvote</a>
-    <a href="{% url 'post_detail' post.id %}">Downvote</a>
-    Submitted By: <b>{{ comment_detail.user.username }}</b>
+    <a href="{% url 'upvote_comment' comment_detail.id 'U' %}">Upvote</a>
+    <a href="{% url 'upvote_comment' comment_detail.id 'D' %}">Downvote</a>
+    Submitted By: <a href="{% url 'user_profile' comment_detail.user.id %}"><b>{{ comment_detail.user.username }}</b></a>
     Date: <b>{{  comment_detail.timestamp}}</b>
 
 

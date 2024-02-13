@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Post, Response
-
+from .models import Post, Response, Topic, UserProfile
 
 class RegisterUserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
@@ -34,11 +33,15 @@ class LoginForm(AuthenticationForm):
     class Meta:
         fields = ["__all__"]
 
+class EditBioForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio']
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'body']
+        fields = ['topic', 'title', 'body']
         widgets = {
             'title': forms.TextInput(attrs={
                 'autofocus': True,
@@ -51,6 +54,17 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Response
         fields = ['body']
+
+class TopicForm(forms.ModelForm):
+    class Meta:
+        model = Topic
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'autofocus': True,
+                'placeholder': 'Your title'
+            })
+        }
 
 
 class ReplyForm(forms.ModelForm):

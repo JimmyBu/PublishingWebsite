@@ -1,6 +1,8 @@
+{% extends './base.html' %}
 
+{% block post %}
 <div id="filteredPosts">
-    {% for post in posts %}
+    {% for post in filtered_posts %}
         <div class="post-list-item">
             <h1 class="post-list-title">
                 {{ post.title }}
@@ -9,12 +11,12 @@
             <p>{{ post.body }}</p>
             <br>
             Score: <b>{{ post.score }}</b>
-            <a href="{% url 'upvote_post' post.id 'U' %}">Upvote</a>
-            <a href="{% url 'upvote_post' post.id 'D' %}">Downvote</a>
-            Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
+            <a href="{% url 'post_detail' post.id %}">Upvote</a>
+            <a href="{% url 'post_detail' post.id %}">Downvote</a>
+            Submitted By: <b>{{ post.author.username }}</b>
             Date: <b>{{ post.timestamp }}</b>
             <a href="{% url 'post_detail' post.id %}">View Comments</a>
         </div>
     {% endfor %}
 </div>
-
+{%endblock%}
