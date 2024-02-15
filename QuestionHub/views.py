@@ -42,6 +42,7 @@ def post_detail(request, id):
     reply = ReplyForm()
     user_vote = []
     comment_vote_list = []
+    user_votes = []
     if request.user.is_authenticated:
         user_votes = Vote.objects.filter(user=request.user)
         user_vote = Vote.objects.filter(user=request.user, post=post).first()
