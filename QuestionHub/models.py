@@ -52,14 +52,25 @@ class Response(models.Model):
     def get_comment(self):
         return Response.objects.filter(parent=self)  # retrieve all the replies
 
+class Vote(models.Model):
+    VOTE_CHOICES = (
+        ('U', 'Upvote'),
+        ('D', 'Downvote'),
+    )
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)
+    comment = models.ForeignKey(Response, on_delete=models.CASCADE, null=True, blank=True)
+    vote_type = models.CharField(max_length=1, choices=VOTE_CHOICES)
 
-"""class UpVote(models.Model):
-    vote = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='upvote')
+    class Meta:
+        verbose_name = 'Vote'
+        verbose_name_plural = 'Votes'
 
+    def __str__(self):
+        if self.post:
+            return f'{self.user.username} - {self.post.title} - {self.get_vote_type_display()}'
+        elif self.comment:
+            return f'{self.user.username} - {self.comment.text} - {self.get_vote_type_display()}'
 
-class DownVote(models.Model):
-    vote = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='downvote')
-"""
+Vote._meta.unique_together = (('user', 'post'), ('user', 'comment'))

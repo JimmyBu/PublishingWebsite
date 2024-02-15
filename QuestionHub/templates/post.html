@@ -9,12 +9,30 @@
             <p>{{ post.body }}</p>
             <br>
             Score: <b>{{ post.score }}</b>
-            <a href="{% url 'upvote_post' post.id 'U' %}">Upvote</a>
-            <a href="{% url 'upvote_post' post.id 'D' %}">Downvote</a>
+            {% if not post in post_vote_list %}
+           
+            <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+            <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+       
+            {% else %}
+            {% for vote in user_votes %}
+            {% if vote.post == post %}
+                {% if vote.vote_type == 'U' %}
+                    <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn--undo">Undo Upvote</a>
+                    <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+                {% endif %}
+                {% if vote.vote_type == 'D' %}
+                    <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+                    <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn--undo">Undo Downvote</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {%endif%}
+        
+
             Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
             Date: <b>{{ post.timestamp }}</b>
             <a href="{% url 'post_detail' post.id %}">View Comments</a>
         </div>
     {% endfor %}
 </div>
-

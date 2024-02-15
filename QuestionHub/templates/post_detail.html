@@ -9,8 +9,18 @@
     <p> {{ post.body }}</p>
     <br></br>
     Score: <b> {{ post.score }} </b>
-    <a href="{% url 'upvote_post' post.id 'U' %}">Upvote</a>
-    <a href="{% url 'upvote_post' post.id 'D' %}">Downvote</a>
+    {% if user_vote %}
+    {% if user_vote.vote_type == 'U' %}
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn--undo">Undo Upvote</a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+    {% elif user_vote.vote_type == 'D' %}
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn--undo">Undo Downvote</a>
+    {% endif %}
+    {% else %}
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+    {% endif %}
     Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
     Date: <b>{{ post.timestamp }}</b>
 </div>

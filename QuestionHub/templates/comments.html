@@ -2,8 +2,27 @@
     <p> {{ comment_detail.body }}</p>
     <br></br>
     Score: <b> {{ comment_detail.score }} </b>
-    <a href="{% url 'upvote_comment' comment_detail.id 'U' %}">Upvote</a>
-    <a href="{% url 'upvote_comment' comment_detail.id 'D' %}">Downvote</a>
+
+    {% if not comment_detail in comment_vote_list %}
+           
+    <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+    <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+
+    {% else %}
+        {% for vote in user_votes %}
+        {% if vote.comment == comment_detail %}
+            {% if vote.vote_type == 'U' %}
+                <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn--undo">Undo Upvote</a>
+                <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+            {% endif %}
+            {% if vote.vote_type == 'D' %}
+            <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+            <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn--undo">Undo Downvote</a>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {%endif%}
+
     Submitted By: <a href="{% url 'user_profile' comment_detail.user.id %}"><b>{{ comment_detail.user.username }}</b></a>
     Date: <b>{{  comment_detail.timestamp}}</b>
 
