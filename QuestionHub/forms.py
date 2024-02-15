@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Post, Response, Topic, UserProfile
 
+
 class RegisterUserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(RegisterUserForm, self).__init__(*args, **kwargs)
@@ -33,10 +34,12 @@ class LoginForm(AuthenticationForm):
     class Meta:
         fields = ["__all__"]
 
+
 class EditBioForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['bio']
+
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -54,6 +57,7 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Response
         fields = ['body']
+
 
 class TopicForm(forms.ModelForm):
     class Meta:
