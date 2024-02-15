@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class UserProfile(models.Model):
     """
     Additional user info that are not related to authentication
@@ -14,14 +15,16 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-    
+
+
 class Topic(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=255)
-    
+
     def __str__(self):
         return self.name
-    
+
+
 class Post(models.Model):
     author = models.ForeignKey(User, null=False, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, null=True, on_delete=models.CASCADE)
@@ -29,7 +32,7 @@ class Post(models.Model):
     body = models.TextField(null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField(default=0)
-    
+
     # define a readable title
     def __str__(self):
         return self.title
@@ -45,13 +48,12 @@ class Response(models.Model):
     body = models.TextField(null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField(default=0)
-    
+
     def __str__(self):
         return self.body
 
     def get_comment(self):
         return Response.objects.filter(parent=self)  # retrieve all the replies
-
 
 
 """class UpVote(models.Model):

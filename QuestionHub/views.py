@@ -1,19 +1,40 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-
+import openai
 from django.contrib.auth import login, logout
 from .models import Post, Response, Topic, UserProfile
 from .forms import *
 from django.contrib.auth import get_user_model
+
+
+def modify_comment(comment):
+    openai.api_key = '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'
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": "Could you modify the following sentence to be bad word-free?",
+            },
+            {
+                "role": "user",
+                "content": comment,
+            },
+        ],
+    )
+    modified_comment = response.choices[0].message.content
+    # print(response.choices[0].message.content)
+    return modified_comment
+
 
 def Home(request):
     posts = Post.objects.all().order_by("timestamp")
     topics = Topic.objects.all()
     context = {
         'posts': posts,
-        'topics' : topics,
-        'current_page' : 'post'
+        'topics': topics,
+        'current_page': 'post'
     }
     return render(request, "base.html", context)
 
@@ -30,6 +51,8 @@ def post_detail(request, id):
                 c = comment.save(commit=False)  # commit = false delay the save
                 c.user = request.user  # fetch the current user
                 c.post = Post(id=id)  # fetch the current post
+                modified_comment = modify_comment(c.body)  # Call the function to modify the comment
+                c.body = modified_comment
                 c.save()  # then save
                 redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
 
@@ -43,18 +66,20 @@ def post_detail(request, id):
     }
     return render(request, 'post_detail.html', context)
 
+
 def topic_detail(request, id):
     topic = Topic.objects.get(id=id)
     filtered_posts = Post.objects.all() if not topic else Post.objects.filter(topic_id=id)
     topics = Topic.objects.all()  # Assuming you need topics for the dropdown
-    
+
     context = {
         'filtered_posts': filtered_posts,
         'topics': topics,
-        'current_page' : 'topic_detail',
-        'topic' : topic
+        'current_page': 'topic_detail',
+        'topic': topic
     }
     return render(request, 'topic_detail.html', context)
+
 
 def Register(request):
     form = RegisterUserForm()
@@ -104,6 +129,7 @@ def Logout(request):
     logout(request)
     return redirect('login')
 
+
 @login_required
 def my_profile(request):
     """
@@ -125,11 +151,12 @@ def my_profile(request):
                 updated_bio = bio_form.save(commit=False)  # commit = false delay the save
                 updated_profile.bio = updated_bio.bio
                 updated_profile.save()  # then save
-                return redirect("my_profile") #reload to show new bio
+                return redirect("my_profile")  # reload to show new bio
         except Exception as e:
             raise e
 
     return render(request, 'my_profile.html', context={'user': current_user, 'bio_form': bio_form})
+
 
 def user_profile(request, id):
     """
@@ -161,6 +188,7 @@ def create_post(request):
     context = {'form': form}
     return render(request, 'create_post.html', context)
 
+
 @login_required(login_url='register')
 def create_topic(request):
     form = TopicForm()
@@ -179,6 +207,7 @@ def create_topic(request):
     context = {'form': form}
     return render(request, 'create_topic.html', context)
 
+
 @login_required(login_url='register')
 def upvote_comment(request, pk, vote):
     comment = get_object_or_404(Response, pk=pk)
@@ -190,6 +219,7 @@ def upvote_comment(request, pk, vote):
 
     original_url = request.META.get('HTTP_REFERER', '/default/url/')
     return redirect(original_url)
+
 
 @login_required(login_url='register')
 def upvote_post(request, pk, vote):
@@ -203,6 +233,7 @@ def upvote_post(request, pk, vote):
     original_url = request.META.get('HTTP_REFERER', '/default/url/')
     return redirect(original_url)
 
+
 @login_required(login_url='register')
 def reply_list(request):
     if request.method == "POST":
@@ -215,6 +246,8 @@ def reply_list(request):
                 r.user = request.user
                 r.post = Post(id=post_id)
                 r.parent = Response(id=parent_id)
+                modified_comment = modify_comment(r.body)  # Call the function to modify the comment
+                r.body = modified_comment
                 r.save()
                 redirect('/post/' + str(post_id) + '/' + str(r.id))
 
