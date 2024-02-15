@@ -7,6 +7,7 @@ from .models import Post, Response, Topic, UserProfile, Vote
 from .forms import *
 from django.contrib.auth import get_user_model
 
+#Credemtials for test user:
 #admin
 #Password123!
 
