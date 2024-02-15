@@ -9,7 +9,6 @@ from django.contrib.auth import get_user_model
 
 
 def modify_comment(comment):
-    openai.api_key = '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'
     response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -24,7 +23,7 @@ def modify_comment(comment):
         ],
     )
     modified_comment = response.choices[0].message.content
-    # print(response.choices[0].message.content)
+    print(response.choices[0].message.content)
     return modified_comment
 
 

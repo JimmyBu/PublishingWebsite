@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+import openai
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +28,8 @@ API_KEY_FILE = os.path.join(BASE_DIR, 'API_KEY.txt')
 
 with open(API_KEY_FILE, 'r') as f:
     API_KEY = f.read().strip()
+
+openai.api_key = API_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
