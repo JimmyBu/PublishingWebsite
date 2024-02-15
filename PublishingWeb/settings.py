@@ -23,6 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ww+(u3+#lgb55*o_av07dqnet_c#(zt$2q5%vp@w7y1aq94kbk'
 
+API_KEY_FILE = os.path.join(BASE_DIR, 'API_KEY.txt')
+
+with open(API_KEY_FILE, 'r') as f:
+    API_KEY = f.read().strip()
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
