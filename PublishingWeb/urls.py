@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from QuestionHub import views
 
 urlpatterns = [
@@ -36,4 +36,5 @@ urlpatterns = [
     path('topic/', views.create_topic, name='create_topic'),
     path('topic/<int:id>/', views.topic_detail, name='topic_detail'),
     path('', views.Home, name='home'),
+    path("chats/", include("chat.urls")),
 ]

@@ -1,0 +1,112 @@
+/* style.css */
+
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Chat container */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Main section */
+.main {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-bottom: 1px solid #ccc;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: auto;
+}
+
+.sub-main {
+    display: flex;
+    align-items: center;
+}
+
+.main-user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.header {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #e6e6e6;
+    text-align: center;
+}
+
+/* Friends container */
+.friends-container {
+    overflow-y: auto;
+}
+
+.friends {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.pic img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.name {
+    flex-grow: 1;
+}
+
+/* Chat area */
+.chat-area {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Chat message */
+.message {
+    margin-bottom: 10px;
+}
+
+.message p {
+    margin: 0;
+}
+
+.message.sent {
+    text-align: right;
+}
+
+/* Chat input */
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-top: 1px solid #ccc;
+}
+
+.chat-input textarea {
+    flex-grow: 1;
+    resize: none;
+    padding: 5px;
+}
+
+.chat-input button {
+    margin-left: 10px;
+}

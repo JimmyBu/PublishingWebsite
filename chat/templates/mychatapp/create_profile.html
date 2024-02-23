@@ -1,0 +1,12 @@
+{% extends "mychatapp/base.html" %}
+{% block content %}
+<h1>Register User</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="pic">Profile Picture:</label><br>
+        <input type="file" id="pic" name="pic"><br>
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}
