@@ -364,6 +364,19 @@ def upvote_post(request, pk, vote):
             user_profile.karma -= 1
             user_profile.save()
             return redirect(original_url) 
+        
+@login_required(login_url='register')
+def delete_post(request, id, delete1, delete2):
+    Post.objects.filter(id=id).delete()
+
+    return redirect('/')
+    
+@login_required(login_url='register')
+def delete_comment(request, id, delete1, delete2):
+    original_url = request.META.get('HTTP_REFERER', '/default/url/')
+    Response.objects.filter(id=id).delete()
+
+    return redirect(original_url)
 
 @login_required(login_url='register')
 def reply_list(request):

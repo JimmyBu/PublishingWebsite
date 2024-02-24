@@ -32,6 +32,9 @@
 
             Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
             Date: <b>{{ post.timestamp }}</b>
+            {% if user.is_authenticated and post.author.username == user.username %}
+                <a style="color: red" href="{% url 'delete_post' post.id 'delete' 'delete' %}">Delete Post</a>
+            {% endif %}
             <a href="{% url 'post_detail' post.id %}">View Comments</a>
         </div>
     {% endfor %}

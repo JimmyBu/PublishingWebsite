@@ -26,6 +26,10 @@
     Submitted By: <a href="{% url 'user_profile' comment_detail.user.id %}"><b>{{ comment_detail.user.username }}</b></a>
     Date: <b>{{  comment_detail.timestamp}}</b>
 
+    {% if user.is_authenticated and comment_detail.user.username == user.username %}
+        <a style="color: red" href="{% url 'delete_comment' comment_detail.id 'delete' 'delete' %}">Delete Comment</a>
+    {% endif %}
+
 
     <!--allow replies for comments-->
     <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container" style=:"display: none;">
