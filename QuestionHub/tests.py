@@ -196,6 +196,7 @@ class TestViews(TestCase):
         self.response.refresh_from_db()
         self.profile.refresh_from_db()
         self.assertEqual(self.response.score, 0)
+        self.assertEqual(self.profile.karma, 0)
         self.assertEqual(Vote.objects.filter(user=self.user, comment=self.response).count(), 0)
 
     #Test downvoting a comment
@@ -218,4 +219,5 @@ class TestViews(TestCase):
         self.response.refresh_from_db()
         self.profile.refresh_from_db()
         self.assertEqual(self.response.score, 0)
+        self.assertEqual(self.profile.karma, 0)
         self.assertEqual(Vote.objects.filter(user=self.user, comment=self.response).count(), 0)
