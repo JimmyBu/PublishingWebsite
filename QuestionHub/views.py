@@ -384,12 +384,20 @@ def upvote_post(request, pk, vote):
 def delete_post(request, id, delete1, delete2):
     Post.objects.filter(id=id).delete()
 
+    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    user_profile.num_posts -= 1
+    user_profile.save()
+
     return redirect('/')
     
 @login_required(login_url='register')
 def delete_comment(request, id, delete1, delete2):
     original_url = request.META.get('HTTP_REFERER', '/default/url/')
     Response.objects.filter(id=id).delete()
+
+    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    user_profile.num_comments -= 1
+    user_profile.save()
 
     return redirect(original_url)
 
