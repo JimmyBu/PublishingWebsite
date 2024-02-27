@@ -233,6 +233,21 @@ def create_topic(request):
     context = {'form': form}
     return render(request, 'create_topic.html', context)
 
+@login_required
+def edit_comment(request, comment_id):
+    original_url = request.META.get('HTTP_REFERER', '/default/url/')
+    comment = get_object_or_404(Response, pk=comment_id)
+
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST, instance=comment)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.save()
+            return redirect(original_url)
+    else:
+        comment_form = CommentForm(instance=comment)
+    return render(request, 'edit_comment.html', {'comment_form': comment_form})
+
 @login_required(login_url='register')
 def upvote_comment(request, pk, vote):
     comment = get_object_or_404(Response, pk=pk)
