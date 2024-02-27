@@ -28,8 +28,33 @@
 
     {% if user.is_authenticated and comment_detail.user.username == user.username %}
         <a style="color: red" href="{% url 'delete_comment' comment_detail.id 'delete' 'delete' %}">Delete Comment</a>
+        <button id="edit-comment-btn-{{ comment_detail.id }}">Edit Comment</button> <!-- Add edit button -->
+        <form id="edit-comment-form-{{ comment_detail.id }}" style="display: none;" method="POST" action="{% url 'edit_comment' comment_detail.id %}" class="respond-form">
+            {% csrf_token %}
+            <textarea name="body">{{ comment_detail.body }}</textarea> <!-- Textarea to edit comment -->
+            <button type="submit" value="Send" class="submit-button">Save</button>
+            <button type="button" class="cancel-btn">Cancel</button>
+        </form>
     {% endif %}
 
+    <!-- JavaScript code for toggling edit form -->
+    <script>
+        // Get references to DOM elements
+        const editBtn = document.getElementById('edit-comment-btn-{{ comment_detail.id }}');
+        const editForm = document.getElementById('edit-comment-form-{{ comment_detail.id }}');
+
+        // Function to toggle between displaying comment text and comment edit form
+        function toggleEditComment() {
+            if (editForm.style.display !== 'none') {
+                editForm.style.display = 'none';
+            } else {
+                editForm.style.display = 'block';
+            }
+        }
+
+        // Event listener for edit button click
+        editBtn.addEventListener('click', toggleEditComment);
+    </script>
 
     <!--allow replies for comments-->
     <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container" style=:"display: none;">

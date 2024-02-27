@@ -29,6 +29,7 @@ urlpatterns = [
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('reply/', views.reply_list, name='reply'),
+    path('comment/<int:comment_id>/', views.edit_comment, name='edit_comment'),
     path('comment/<int:pk>/<str:vote>/', views.upvote_comment, name='upvote_comment'),
     path('post/<int:pk>/<str:vote>/', views.upvote_post, name='upvote_post'),
     path('post/<int:id>/', views.post_detail, name='post_detail'),
