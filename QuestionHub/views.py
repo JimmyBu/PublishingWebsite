@@ -1,19 +1,34 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-
+from django.db.models import Count
+from django.db.models import Sum
 from django.contrib.auth import login, logout
 from .models import Post, Response, Topic, UserProfile, Vote
 from .forms import *
 from django.contrib.auth import get_user_model
 
-#Credemtials for test user:
+#Credentials for test user:
 #admin
 #Password123!
 
 def Home(request):
-    posts = Post.objects.all().order_by("timestamp")
+    ordering = request.GET.get('ordering', '-timestamp')
+
+    # Handle different ordering criteria
+    if ordering == 'num_views':
+        posts = Post.objects.all().order_by('-num_views')
+    elif ordering == 'most_upvoted':
+        posts = Post.objects.all().order_by('-score')
+    elif ordering == 'most_downvoted':
+        posts = Post.objects.all().order_by('score')
+    else:
+        # Default ordering by timestamp
+        posts = Post.objects.all().order_by('-timestamp')
+    
     topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     user_votes = []
     post_vote_list = []
     if request.user.is_authenticated:
@@ -22,10 +37,15 @@ def Home(request):
         for vote in user_votes:
           post_vote_list.append(vote.post)
     
+
     context = {
+        'current_ordering': ordering,
         'posts': posts,
         'topics': topics,
         'current_page': 'post',
+        'trending_topics': trending_topics,
+        'users': users,
+        'all_posts': posts
     }
     
     if user_votes:
@@ -38,6 +58,11 @@ def Home(request):
 
 def post_detail(request, id):
     post = Post.objects.get(id=id)
+    posts = Post.objects.all().order_by("timestamp")
+
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     comment = CommentForm()
     reply = ReplyForm()
     user_vote = []
@@ -68,7 +93,11 @@ def post_detail(request, id):
     context = {
         'post': post,
         'comment': comment,
-        'reply': reply
+        'reply': reply,
+        'all_posts': posts,
+        'topics': topics,
+        'trending_topics': trending_topics,
+        'users': users
     }
     
     if user_vote:
@@ -78,12 +107,32 @@ def post_detail(request, id):
     if comment_vote_list:
         context['comment_vote_list'] = comment_vote_list
     
+    user_profile = UserProfile.objects.get_or_create(user=post.author)[0]
+    post.num_views += 1
+    post.save()
+    user_profile.total_views += 1
+    user_profile.save()
+    
     return render(request, 'post_detail.html', context)
 
 def topic_detail(request, id):
     topic = Topic.objects.get(id=id)
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
     filtered_posts = Post.objects.all() if not topic else Post.objects.filter(topic_id=id)
+    ordering = request.GET.get('ordering', '-timestamp')
+
+    # Handle different ordering criteria
+    if ordering == 'num_views':
+        filtered_posts = Post.objects.all().order_by('-num_views') if not topic else Post.objects.filter(topic_id=id).order_by('-num_views')
+    elif ordering == 'most_upvoted':
+        filtered_posts = Post.objects.all().order_by('-score') if not topic else Post.objects.filter(topic_id=id).order_by('-score')
+    elif ordering == 'most_downvoted':
+        filtered_posts = Post.objects.all().order_by('score') if not topic else Post.objects.filter(topic_id=id).order_by('score')
+    else:
+        # Default ordering by timestamp
+        filtered_posts = Post.objects.all().order_by('-timestamp') if not topic else Post.objects.filter(topic_id=id).order_by('-timestamp')
     topics = Topic.objects.all()
+    users = User.objects.all()
     user_votes = []
     post_vote_list = []
     if request.user.is_authenticated:
@@ -94,10 +143,14 @@ def topic_detail(request, id):
     
     
     context = {
+        'current_ordering': ordering,
         'filtered_posts': filtered_posts,
         'topics': topics,
         'current_page' : 'topic_detail',
-        'topic' : topic
+        'topic' : topic,
+        'users' : users,
+        'trending_topics': trending_topics,
+        'all_posts' : filtered_posts
     }
     
     if user_votes:
@@ -108,6 +161,10 @@ def topic_detail(request, id):
     return render(request, 'topic_detail.html', context)
 
 def Register(request):
+    posts = Post.objects.all().order_by("timestamp")
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     form = RegisterUserForm()
     if request.method == "POST":
         try:
@@ -121,15 +178,23 @@ def Register(request):
                 return redirect('home')
         except Exception as e:
             raise e  # Define the error
-
     context = {
-        'form': form
+        'all_posts': posts,
+        'trending_topics': trending_topics,
+        'topics': topics,
+        'users': users,
+        'form': form,
+        
     }
     return render(request, 'user.html', context)
 
 
 # sketches
 def Login(request):
+    posts = Post.objects.all().order_by("timestamp")
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     form = LoginForm
 
     if request.method == "POST":
@@ -145,6 +210,10 @@ def Login(request):
             raise e
 
     context = {
+        'all_posts': posts,
+        'trending_topics': trending_topics,
+        'topics': topics,
+        'users': users,
         'form': form
     }
     return render(request, 'login.html', context)
@@ -162,6 +231,10 @@ def my_profile(request):
     :param request:html request
     :return:
     """
+    posts = Post.objects.all().order_by("timestamp")
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     current_user = request.user
     current_user_profile = UserProfile.objects.get(user=current_user)
     if not current_user.is_authenticated:
@@ -179,8 +252,17 @@ def my_profile(request):
                 return redirect("my_profile") #reload to show new bio
         except Exception as e:
             raise e
+    
+    context = {
+        'all_posts': posts,
+        'trending_topics': trending_topics,
+        'topics': topics,
+        'users': users,
+        'user': current_user,
+        'bio_form': bio_form
+    }
 
-    return render(request, 'my_profile.html', context={'user': current_user, 'bio_form': bio_form})
+    return render(request, 'my_profile.html', context)
 
 def user_profile(request, id):
     """
@@ -190,16 +272,32 @@ def user_profile(request, id):
     :return:
     """
     User = get_user_model()
-
+    posts = Post.objects.all().order_by("timestamp")
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     if id == request.user.id:
         return redirect("my_profile")
 
     trgt_user = get_object_or_404(User, pk=id)
-    return render(request, 'user_detail.html', context={'user': trgt_user})
+    
+    context = {
+        'all_posts': posts,
+        'trending_topics': trending_topics,
+        'topics': topics,
+        'users': users,
+        'user': trgt_user
+    }
+            
+    return render(request, 'user_detail.html', context)
 
 
 @login_required(login_url='register')
 def create_post(request):
+    posts = Post.objects.all().order_by("timestamp")
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     form = PostForm()
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -212,11 +310,21 @@ def create_post(request):
             user_profile.save()
             # Redirect to the post detail page of the newly created post
             return redirect('post_detail', id=post.id)
-    context = {'form': form}
+    context = {
+        'all_posts': posts,
+        'trending_topics': trending_topics,
+        'topics': topics,
+        'users': users,
+        'form': form
+    }
     return render(request, 'create_post.html', context)
 
 @login_required(login_url='register')
 def create_topic(request):
+    posts = Post.objects.all().order_by("timestamp")
+    topics = Topic.objects.all()
+    trending_topics = Topic.objects.annotate(total_views=Sum('post__num_views')).order_by('-total_views')[:10]
+    users = User.objects.all()
     form = TopicForm()
     if request.method == 'POST':
         form = TopicForm(request.POST)
@@ -230,11 +338,18 @@ def create_topic(request):
                 return redirect('topic_detail', id=topic.id)
             else:
                 form.add_error('name', 'A topic with this name already exists.')
-    context = {'form': form}
+    context = {
+        'all_posts': posts,
+        'topics': topics,
+        'users': users,
+        'trending_topics': trending_topics,
+        'form': form
+    }
     return render(request, 'create_topic.html', context)
 
 @login_required
 def edit_comment(request, comment_id):
+    
     original_url = request.META.get('HTTP_REFERER', '/default/url/')
     comment = get_object_or_404(Response, pk=comment_id)
 

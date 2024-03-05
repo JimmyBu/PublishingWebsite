@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     num_posts = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
     karma = models.IntegerField(default=0)
+    total_views = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username
@@ -29,6 +30,7 @@ class Post(models.Model):
     body = models.TextField(null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField(default=0)
+    num_views = models.IntegerField(default=0)
     
     # define a readable title
     def __str__(self):
