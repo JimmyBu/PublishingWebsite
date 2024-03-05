@@ -1,0 +1,12 @@
+<nav class = "ordering">
+<div id="orderingOptions">
+    <form method="GET">
+        <select name="ordering" onchange="this.form.submit()">
+            <option value="-timestamp" {% if current_ordering == '-timestamp' %}selected{% endif %}>Newest</option>
+            <option value="num_views" {% if current_ordering == 'num_views' %}selected{% endif %}>Most Viewed</option>
+            <option value="most_upvoted" {% if current_ordering == 'most_upvoted' %}selected{% endif %}>Most Upvoted</option>
+            <option value="most_downvoted" {% if current_ordering == 'most_downvoted' %}selected{% endif %}>Most Downvoted</option>
+        </select>
+    </form>
+</div>
+</nav>

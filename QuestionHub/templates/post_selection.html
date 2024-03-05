@@ -1,0 +1,34 @@
+<div class="dropdown">
+    <button onclick="togglePostDropdown()" class="dropbtn">Posts</button>
+    <div id="myDropdown-post" class="dropdown-content">
+        <input type="text" placeholder="Search.." id="myInput-post" onkeyup="filterPostFunction()">
+        {% for post in all_posts %}
+            <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+    /* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function togglePostDropdown() {
+    document.getElementById("myDropdown-post").classList.toggle("show");
+  }
+  
+  function filterPostFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput-post");
+    filter = input.value.toUpperCase();
+    div = document.getElementById("myDropdown-post");
+    a = div.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+      txtValue = a[i].textContent || a[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        a[i].style.display = "";
+      } else {
+        a[i].style.display = "none";
+      }
+    }
+  }
+</script>

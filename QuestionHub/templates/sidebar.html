@@ -1,0 +1,10 @@
+{% if current_page == 'post' or current_page == 'topic_detail' %}
+<div class="sidebar">
+    <h2>Trending Topics</h2>
+    <ul>
+        {% for topic in trending_topics %}
+            <li>{{ forloop.counter }}. <a href="{% url 'topic_detail' topic.id %}">{{ topic.name }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{%endif%}

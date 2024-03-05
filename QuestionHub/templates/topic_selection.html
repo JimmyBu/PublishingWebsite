@@ -1,21 +1,35 @@
-<select id="topicSelect">
-    <option value="">All Topics</option>
-    <!-- Add options for each topic dynamically using Django template -->
+<div class="dropdown">
+    <button onclick="ToggleTopicDropdown()" class="dropbtn">Topics</button>
+    <div id="myDropdown" class="dropdown-content">
+      <input type="text" placeholder="Search.." id="myInput" onkeyup="filterTopicFunction()">
+      <a href="{% url 'home' %}">All Topics</a>
+
     {% for topic in topics %}
-        <option value="{{ topic.id }}">{{ topic.name }}</option>
+    <a href="{% url 'topic_detail' topic.id %}">{{ topic.name }} </a>
     {% endfor %}
-</select>
-
-
-<a id="topicLink" href="#" hidden = "true"></a>
-
+    </div>
+  </div>
 
 <script>
-    document.getElementById('topicSelect').addEventListener('change', function() {
-        var selectedTopicId = this.value;
-        var topicLink = document.getElementById('topicLink');
-        topicLink.href = selectedTopicId ? "{% url 'topic_detail' 0 %}".replace('0', selectedTopicId) : '#';
-        // Automatically trigger a click event on the link
-        topicLink.click();
-    });
+    /* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function ToggleTopicDropdown() {
+    document.getElementById("myDropdown").classList.toggle("show");
+  }
+  
+  function filterTopicFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    div = document.getElementById("myDropdown");
+    a = div.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+      txtValue = a[i].textContent || a[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        a[i].style.display = "";
+      } else {
+        a[i].style.display = "none";
+      }
+    }
+  }
 </script>

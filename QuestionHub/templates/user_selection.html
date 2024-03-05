@@ -1,0 +1,34 @@
+<div class="dropdown">
+    <button onclick="toggleUserDropdown()" class="dropbtn">Users</button>
+    <div id="myDropdown-user" class="dropdown-content">
+        <input type="text" placeholder="Search.." id="myInput-user" onkeyup="filterUserFunction()">
+        {% for user in users %}
+            <a href="{% url 'user_profile' user.id %}">{{ user.username }} - User</a>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+    /* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function toggleUserDropdown() {
+    document.getElementById("myDropdown-user").classList.toggle("show");
+  }
+  
+  function filterUserFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput-user");
+    filter = input.value.toUpperCase();
+    div = document.getElementById("myDropdown-user");
+    a = div.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+      txtValue = a[i].textContent || a[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        a[i].style.display = "";
+      } else {
+        a[i].style.display = "none";
+      }
+    }
+  }
+</script>
