@@ -1,0 +1,60 @@
+{% extends './base.html' %}
+
+{% block post %}
+<div class="post-Page">
+    <h1 class="post-list-title">
+        {{ post.title }}
+    </h1>
+    <b> r/{{ post.topic.name  }} </b>
+    <p> {{ post.body }}</p>
+    <br></br>
+    Score: <b> {{ post.score }} </b>
+    {% if user_vote %}
+    {% if user_vote.vote_type == 'U' %}
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn--undo">Undo Upvote</a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+    {% elif user_vote.vote_type == 'D' %}
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn--undo">Undo Downvote</a>
+    {% endif %}
+    {% else %}
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+    {% endif %}
+    Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
+    Date: <b>{{ post.timestamp }}</b>
+    {% if user.is_authenticated and post.author.username == user.username %}
+        <a style="color: red" href="{% url 'delete_post' post.id 'delete' 'delete' %}">Delete Post</a>
+    {% endif %}
+</div>
+    <div class="comment-container">
+        <br>
+        <h4 class="comment-heading">Comments</h4>
+        </br>
+        
+        {% if not post.comments.all %}
+            <!--a buffer for showing no comments yet-->
+            <p class="no-comments">Become the first comment.</p>
+        {% else %}
+            {% for comment_detail in post.get_comment %}
+                {% include 'comments.html' with comment_detail=comment_detail %}
+            
+                <!--this comment_detail is parsed into the comments as the variables there-->
+            {% endfor %}
+        {% endif %}
+    </div>
+
+
+    {% if user.is_authenticated %}
+        <form method="POST" action="" class="respond-form">
+        {% csrf_token %}
+        <label for="{{ comment.body.id_for_label }}">Your Comment:</label>
+        {{ comment.body }} <!--get the comment form-->
+        <input type="submit" value="Send" class="submit-button"/>
+        </form>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+

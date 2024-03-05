@@ -1,0 +1,50 @@
+<nav class="navbar">
+    <div class="main-menu">
+        <ul>
+            <li>
+                <b> Project X </b>
+            </li>
+            <li>
+                <a href="{% url 'home' %}">Posts</a>
+            </li>
+
+        </ul>
+    </div>
+    <div class="user-menu">
+        <ul>
+            {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'create_post' %}">Create a Post</a>
+            </li>
+
+            <li>
+                <a href="{% url 'create_topic' %}">Create a Topic</a>
+            </li>
+            <li>
+                <a href="{% url 'my_profile' %}">My Profile</a>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}">Log out</a>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url 'login' %}">Log in</a>
+            </li>
+            <li>
+                <a href="{% url 'register' %}">Register</a>
+            </li>
+            {% endif %}
+            {% if current_page == 'post' or current_page == 'topic_detail' %}
+            <li>
+                {% include 'topic_selection.html' %}
+            </li>
+            {% endif %}
+            {% if current_page == 'topic_detail' %}
+            <li class="current-topic">
+                <span>{{ topic.name }}</span>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+</nav>

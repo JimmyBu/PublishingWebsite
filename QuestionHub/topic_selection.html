@@ -1,0 +1,21 @@
+<select id="topicSelect">
+    <option value="">All Topics</option>
+    <!-- Add options for each topic dynamically using Django template -->
+    {% for topic in topics %}
+        <option value="{{ topic.id }}">{{ topic.name }}</option>
+    {% endfor %}
+</select>
+
+
+<a id="topicLink" href="#" hidden = "true"></a>
+
+
+<script>
+    document.getElementById('topicSelect').addEventListener('change', function() {
+        var selectedTopicId = this.value;
+        var topicLink = document.getElementById('topicLink');
+        topicLink.href = selectedTopicId ? "{% url 'topic_detail' 0 %}".replace('0', selectedTopicId) : '#';
+        // Automatically trigger a click event on the link
+        topicLink.click();
+    });
+</script>
