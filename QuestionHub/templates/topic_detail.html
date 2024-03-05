@@ -1,8 +1,8 @@
 {% extends './base.html' %}
-
 {% block post %}
 <div id="filteredPosts">
     {% for post in filtered_posts %}
+    <div class="post-container">
         <div class="post-list-item">
             <h1 class="post-list-title">
                 {{ post.title }}
@@ -33,9 +33,11 @@
         
 
             Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
-            Date: <b>{{ post.timestamp }}</b>
+            Date: <b>{{ post.timestamp }}</b>          
+            Views: <b>{{post.num_views}}</b>
             <a href="{% url 'post_detail' post.id %}">View Comments</a>
         </div>
+    </div>
     {% endfor %}
 </div>
 

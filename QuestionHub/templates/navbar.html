@@ -7,7 +7,18 @@
             <li>
                 <a href="{% url 'home' %}">Posts</a>
             </li>
-
+            <li>
+                {%include 'ordering.html' %}
+            </li>
+            <li>
+                {% include 'topic_selection.html' %}
+            </li>
+            <li>
+                {% include 'post_selection.html' %}
+            </li>
+            <li>
+                {% include 'user_selection.html' %}
+            </li>
         </ul>
     </div>
     <div class="user-menu">
@@ -34,11 +45,7 @@
                 <a href="{% url 'register' %}">Register</a>
             </li>
             {% endif %}
-            {% if current_page == 'post' or current_page == 'topic_detail' %}
-            <li>
-                {% include 'topic_selection.html' %}
-            </li>
-            {% endif %}
+
             {% if current_page == 'topic_detail' %}
             <li class="current-topic">
                 <span>{{ topic.name }}</span>
