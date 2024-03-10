@@ -4,8 +4,9 @@ from django.http import HttpResponse
 from django.db.models import Count
 from django.db.models import Sum
 from django.contrib.auth import login, logout
-from .models import Post, Response, Topic, UserProfile, Vote
+from .models import Post, Response, Topic, Vote, UserProfile
 from .forms import *
+from .views_chat import *
 from django.contrib.auth import get_user_model
 
 #Credentials for test user:
@@ -237,6 +238,7 @@ def my_profile(request):
     users = User.objects.all()
     current_user = request.user
     current_user_profile = UserProfile.objects.get(user=current_user)
+    friends = current_user_profile.get_friends()
     if not current_user.is_authenticated:
         return redirect("login")
 
@@ -259,7 +261,8 @@ def my_profile(request):
         'topics': topics,
         'users': users,
         'user': current_user,
-        'bio_form': bio_form
+        'bio_form': bio_form,
+        'friends': friends
     }
 
     return render(request, 'my_profile.html', context)
@@ -280,13 +283,18 @@ def user_profile(request, id):
         return redirect("my_profile")
 
     trgt_user = get_object_or_404(User, pk=id)
+    if request.user.userprofile.friends.filter(id=trgt_user.id).exists():
+        is_friend = True
+    else:
+        is_friend = False
     
     context = {
         'all_posts': posts,
         'trending_topics': trending_topics,
         'topics': topics,
         'users': users,
-        'user': trgt_user
+        'user': trgt_user,
+        'is_friend': is_friend
     }
             
     return render(request, 'user_detail.html', context)
@@ -538,3 +546,28 @@ def reply_list(request):
             raise e
 
     return redirect('/post/' + str(post_id) + '/' + str(r.id))
+
+@login_required
+def friends_list(request):
+    user = request.user
+    friends = user.userprofile.get_friends()
+    return render(request, 'user_sidebar.html', {'friends': friends, 'user':user})
+
+@login_required
+def add_friend(request, friend_id):
+    User = get_user_model()
+    maybe_friend = get_object_or_404(User, id=friend_id)
+    user_profile = request.user.userprofile
+
+    # Check if already a friend
+    if user_profile.friends.filter(id=maybe_friend.id).exists():
+        return HttpResponse(status=200)#redirect('/profile/'+str(friend_id))
+
+    # Otherwise add the friend
+    try:
+        user_profile.friends.add(maybe_friend)
+    except IntegrityError:
+        # Prevent Database overlapped
+        return HttpResponse(status=200)#redirect('/profile/'+str(friend_id))
+
+    return HttpResponse(status=200)#redirect('/profile/'+str(friend_id))

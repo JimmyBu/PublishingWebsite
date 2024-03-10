@@ -27,6 +27,14 @@
             </div>
         </div>
     </div>
+    <div class="user-sidebar user-profile-sidebar">
+            <h2>Friends</h2>
+            <ul>
+                {% for friend in friends %}
+                    <li> <a href="{% url 'chat_detail' friend.id %}">{{ friend.username }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
     <script>
         // Get references to DOM elements
         const bioSection = document.getElementById('bio-section');

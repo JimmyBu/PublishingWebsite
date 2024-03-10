@@ -1,12 +1,21 @@
 {% extends './base.html' %}
 {% block user_profile %}
-
+<style>
+    .add-friend {
+                {% if is_friend == True %}
+                display: none;
+                {% else %}
+                display: block;
+                {%endif%}
+            }
+</style>
 <body>
     <div class="user-container">
         <header class="user-header">
             <h1>Author Profile - {{user.username}}</h1>
         </header>
         <div class="user-content">
+            <div id="add-friend"><button onclick="addFriend()">Add Friend</button></div>
             <div class="profile-info">
                 <h2>{{ user.username }}</h2>
                 <p><strong>Bio:</strong> {{ user.userprofile.bio }}</p>
@@ -18,4 +27,24 @@
         </div>
     </div>
 </body>
+<script>
+    const friendButton = document.getElementById("add-friend");
+    function addFriend() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            friendButton.style.display = 'none';
+          } else {
+            console.error('Request failed: ' + xhr.status);
+          }
+        }
+      };
+
+      xhr.open("GET", "{% url 'add_friend' user.id %}", true);
+      xhr.send();
+    }
+
+</script>
 {% endblock user_profile %}
