@@ -57,7 +57,7 @@ def sentMessages(request, pk):
 def receivedMessages(request, pk):
     arr = []
     user = request.user
-    friend = User.objects.get(profile_id=pk)
+    friend = User.objects.get(id=pk)
     chats = ChatMessage.objects.filter(msg_sender=friend, msg_receiver=user)
     for chat in chats:
         arr.append(chat.body)
