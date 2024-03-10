@@ -7,6 +7,7 @@ from django.contrib.auth import login, logout
 from .models import Post, Response, Topic, UserProfile, Vote
 from .forms import *
 from django.contrib.auth import get_user_model
+import openai
 
 #Credentials for test user:
 #admin
@@ -55,6 +56,23 @@ def Home(request):
  
     return render(request, "base.html", context)
 
+def modify_comment(comment):
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user, and modify the comment to replace those bad words. Example: Comment='what is happening my brothers' Since no modification is needed, Result='what is happening my brothers'. Also just give the result, do not give the reasoning as to what you identified. Now please moderate this comment:",
+            },
+            {
+                "role": "user",
+                "content": comment,
+            },
+        ],
+    )
+    modified_comment = response.choices[0].message.content
+    # print(response.choices[0].message.content)
+    return modified_comment
 
 def post_detail(request, id):
     post = Post.objects.get(id=id)
@@ -81,6 +99,8 @@ def post_detail(request, id):
                 c = comment.save(commit=False)  # commit = false delay the save
                 c.user = request.user  # fetch the current user
                 c.post = Post(id=id)  # fetch the current post
+                modified_comment = modify_comment(c.body)  # Call the function to modify the comment
+                c.body = modified_comment
                 c.save()  # then save
                 user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
                 user_profile.num_comments += 1
@@ -528,6 +548,8 @@ def reply_list(request):
                 r.user = request.user
                 r.post = Post(id=post_id)
                 r.parent = Response(id=parent_id)
+                modified_comment = modify_comment(r.body)  # Call the function to modify the comment
+                r.body = modified_comment
                 r.save()
                 user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
                 user_profile.num_comments += 1
