@@ -1,10 +1,14 @@
 {% if current_page == 'post' or current_page == 'topic_detail' %}
 <div class="user-sidebar">
+    {% if is_authenticated %}
     <h2>Friends</h2>
     <ul>
         {% for friend in friends %}
-            <li> <a href="{% url 'chat_detail' user.id %}">{{ friend.username }}</a></li>
+            <li> <a href="{% url 'chat_detail' friend.id %}">{{ friend.username }}</a></li>
         {% endfor %}
     </ul>
+    {% else %}
+    <p>Log in to chat with friends here!</p>
+    {% endif %}
 </div>
 {%endif%}

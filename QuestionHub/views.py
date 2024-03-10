@@ -37,6 +37,10 @@ def Home(request):
         
         for vote in user_votes:
           post_vote_list.append(vote.post)
+
+        friends_list = request.user.userprofile.get_friends()
+    else:
+        friends_list = None
     
 
     context = {
@@ -46,7 +50,9 @@ def Home(request):
         'current_page': 'post',
         'trending_topics': trending_topics,
         'users': users,
-        'all_posts': posts
+        'all_posts': posts,
+        'friends': friends_list,
+        'is_authenticated': request.user.is_authenticated
     }
     
     if user_votes:
