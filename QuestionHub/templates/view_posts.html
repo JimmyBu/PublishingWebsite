@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homepage</title>
+</head>
+<body>
+    <h1>Latest Posts</h1>
+    <a href="{% url 'create_post' %}">Create Post</a>
+    {% for post in posts %}
+        <div>
+            <h2>{{ post.title }}</h2>
+            
+            <p><strong>Topic:</strong> {{ post.topic.topic_name }}</p>
+            <p><strong>Body:</strong> {{ post.body }}</p>
+            <p><strong>Author:</strong> {{ post.author.name }}</p>
+            <p><strong>Timestamp:</strong> {{ post.timestamp }}</p>  
+            <p><strong>Score:</strong> {{ post.score }}</p>
+            <a href="{% url 'post_detail' post.id %}">View Comments</a>
+            
+        <hr>
+    {% endfor %}
+</body>
+</html>

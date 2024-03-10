@@ -1,0 +1,10 @@
+{% extends "mychatapp/base.html" %}
+{% block content %}
+<h1>Add Friend</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="friend_id">Friend ID:</label><br>
+        <input type="text" id="friend_id" name="friend_id"><br>
+        <button type="submit">Add Friend</button>
+    </form>
+{% endblock %}
