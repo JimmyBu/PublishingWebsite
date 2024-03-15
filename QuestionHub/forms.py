@@ -36,7 +36,12 @@ class LoginForm(AuthenticationForm):
 class EditBioForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['bio']
+        fields = ['bio', 'pic']
+
+class EditPicForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['pic']
 
 class ChatMessageForm(forms.ModelForm):
     body = forms.CharField(widget=forms.Textarea(attrs={"class": "forms", "rows": 3, "placeholder": "Type in your "

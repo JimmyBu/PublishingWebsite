@@ -2,9 +2,15 @@
 {% block content %}
 {% load static %}
 <style>
-.profile-pic {
+.profile-pic .chat-container{
   border-radius: 50%;
 }
+
+.profile-pic-container .chat-container{
+    width: 10%;
+}
+
+
 </style>
 
 <div class="chat-container">
@@ -14,14 +20,14 @@
         </div>
 
         <div class="sub-main">
-            <div class="main-user">
-                {% if user.pic %}
-                    <img class="profile-pic" src="{{ user.userprofile.pic.url }}" alt="profile picture", width="5%"/>
+            <div class="profile-pic-container">
+                {% if friend.pic %}
+                    <img class="profile-pic" src="{{ friend.userprofile.pic.url }}" alt="profile picture"/>
                 {% else %}
-                    <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture", width="5%">
+                    <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture">
                 {% endif %}
             </div>
-            <p>@{{ user.user.username }}</p>
+            <p>@{{ friend.username }}</p>
         </div>
     </div>
 
