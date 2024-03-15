@@ -42,3 +42,26 @@
     </div>
     {% endfor %}
 </div>
+<script>
+    setInterval(getNotification, 1000)
+
+    function getNotification(){
+        let url = "{% url 'notification' %}"
+
+        fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            let chatNotificationBtn = document.getElementsByClassName("msg")
+            for(let i = 0; i<data.length; i++){
+                if (data[i] == 0) {
+                    chatNotificationBtn[i].innerText = ""
+                }
+                else{
+                    chatNotificationBtn[i].innerText = data[i]
+                }
+            }
+        })
+        .catch(error => console.log(error))
+    }
+</script>

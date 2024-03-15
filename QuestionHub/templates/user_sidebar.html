@@ -4,7 +4,8 @@
     <h2>Friends</h2>
     <ul>
         {% for friend in friends %}
-            <li> <a href="{% url 'chat_detail' friend.id %}">{{ friend.username }}</a></li>
+            <li> <a href="{% url 'chat_detail' friend.id %}">{{ friend.username }}</a>  <span class="msg"></span></p>
+            </li>
         {% endfor %}
     </ul>
     {% else %}
@@ -12,3 +13,4 @@
     {% endif %}
 </div>
 {%endif%}
+

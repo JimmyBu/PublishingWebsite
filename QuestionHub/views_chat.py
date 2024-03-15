@@ -75,39 +75,7 @@ def chatNotification(request):
 
 
 @login_required
-def add_friend(request, friend_id):
-    User = get_user_model()
-    maybe_friend = get_object_or_404(User, id=friend_id)
-    user_profile = request.user.userprofile
-
-    # Check if already a friend
-    if user_profile.friends.filter(user=maybe_friend).exists():
-        return redirect('friends_list')
-
-    # Otherwise add the friend
-    try:
-        user_profile.friends.add(maybe_friend)
-    except IntegrityError:
-        # Prevent Database overlapped
-        return redirect('friends_list')
-
-    return redirect('friends_list')
-
-
-@login_required
 def friends_list(request):
     user = request.user
     friends = user.userprofile.get_friends()
     return render(request, 'mychatapp/friends_list.html', {'friends': friends})
-
-
-def search_user(request):
-    User = get_user_model()
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        user = get_object_or_404(User, username=username)
-        profile = user.userprofile
-        return redirect('add_friend', friend_id=profile.id)
-    else:
-        pass
-    return render(request, 'mychatapp/search_user.html')

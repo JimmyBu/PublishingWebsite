@@ -1,12 +1,13 @@
 {% extends './base.html' %}
 {% block user_profile %}
+{% load static %}
 <style>
-    .add-friend {
-                {% if is_friend == True %}
+    #add-friend {
+                {% if is_friend %}
                 display: none;
                 {% else %}
                 display: block;
-                {%endif%}
+                {% endif %}
             }
 </style>
 <body>
@@ -16,7 +17,14 @@
         </header>
         <div class="user-content">
             <div id="add-friend"><button onclick="addFriend()">Add Friend</button></div>
-            <div class="profile-info">
+            <div class="profile-pic-container" >
+                {% if user.userprofile.pic %}
+                    <img class="profile-pic" src="{{ user.userprofile.pic.url }}" alt="profile picture"/>
+                {% else %}
+                    <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture">
+                {% endif %}
+            </div>
+            <div class="profile-info" >
                 <h2>{{ user.username }}</h2>
                 <p><strong>Bio:</strong> {{ user.userprofile.bio }}</p>
                 <p><strong>Number of Posts:</strong> {{ user.userprofile.num_posts }}</p>
