@@ -1,13 +1,30 @@
 {% extends './base.html' %}
 {% block user_profile %}
-
+{% load static %}
+<style>
+    #add-friend {
+                {% if is_friend %}
+                display: none;
+                {% else %}
+                display: block;
+                {% endif %}
+            }
+</style>
 <body>
     <div class="user-container">
         <header class="user-header">
             <h1>Author Profile - {{user.username}}</h1>
         </header>
         <div class="user-content">
-            <div class="profile-info">
+            <div id="add-friend"><button onclick="addFriend()">Add Friend</button></div>
+            <div class="profile-pic-container" >
+                {% if user.userprofile.pic %}
+                    <img class="profile-pic" src="{{ user.userprofile.pic.url }}" alt="profile picture"/>
+                {% else %}
+                    <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture">
+                {% endif %}
+            </div>
+            <div class="profile-info" >
                 <h2>{{ user.username }}</h2>
                 <p><strong>Bio:</strong> {{ user.userprofile.bio }}</p>
                 <p><strong>Number of Posts:</strong> {{ user.userprofile.num_posts }}</p>
@@ -18,4 +35,24 @@
         </div>
     </div>
 </body>
+<script>
+    const friendButton = document.getElementById("add-friend");
+    function addFriend() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            friendButton.style.display = 'none';
+          } else {
+            console.error('Request failed: ' + xhr.status);
+          }
+        }
+      };
+
+      xhr.open("GET", "{% url 'add_friend' user.id %}", true);
+      xhr.send();
+    }
+
+</script>
 {% endblock user_profile %}

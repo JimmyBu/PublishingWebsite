@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Post, Response, Topic, UserProfile
+from .models import Post, Response, Topic, UserProfile, ChatMessage
 
 class RegisterUserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
@@ -36,7 +36,22 @@ class LoginForm(AuthenticationForm):
 class EditBioForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['bio']
+        fields = ['bio', 'pic']
+
+class EditPicForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['pic']
+
+class ChatMessageForm(forms.ModelForm):
+    body = forms.CharField(widget=forms.Textarea(attrs={"class": "forms", "rows": 3, "placeholder": "Type in your "
+                                                                                                    "message"}))
+
+    class Meta:
+        model = ChatMessage
+        fields = [
+            "body",
+        ]
 
 class PostForm(forms.ModelForm):
     class Meta:
