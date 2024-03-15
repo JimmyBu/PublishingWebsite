@@ -16,11 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from QuestionHub import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('chat/', views.index, name="index"),
+    path('chat/friend/<str:pk>', views.detail, name="chat_detail"),
+    path("chat/sent_msg/<str:pk>", views.sentMessages, name="sent_msg"),
+    path("chat/rec_msg/<str:pk>", views.receivedMessages, name="rec_msg"),
+    path("chat/notification", views.chatNotification, name="notification"),
+    path('add-friend/<int:friend_id>/', views.add_friend, name='add_friend'),
+    path('friends/', views.friends_list, name='friends_list'),
     path('register', views.Register, name='register'),
+    path('edit-profile-pic', views.editProfilePic, name='edit_pic'),
     path('profile', views.my_profile, name='my_profile'),
     path('profile/', views.my_profile, name='my_profile'),
     path('profile/<int:id>/', views.user_profile, name='user_profile'),
@@ -40,3 +50,5 @@ urlpatterns = [
     path('topic/<int:id>/', views.topic_detail, name='topic_detail'),
     path('', views.Home, name='home'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

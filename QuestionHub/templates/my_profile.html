@@ -1,11 +1,26 @@
 {% extends './base.html' %}
 {% block my_profile %}
+{% load static %}
 <body>
     <div class="user-container">
         <header class="user-header">
             <h1>My Profile</h1>
         </header>
         <div class="user-content">
+            <div class="profile-pic-container" >
+                {% if user.userprofile.pic %}
+                    <img class="profile-pic" src="{{ user.userprofile.pic.url }}" alt="profile picture"/>
+                {% else %}
+                    <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture">
+                {% endif %}
+                <div class="upload-pic">
+                    <form id="pic-form" method="POST" action="{% url 'edit_pic' %}", enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label>Upload new picture:</label><br>
+                        {{pic_form.pic}}
+                    </form>
+                </div>
+            </div>
             <div class="profile-info">
                 <h2>{{ user.username }}</h2>
                 <button id="edit-btn">Edit</button>
@@ -27,12 +42,22 @@
             </div>
         </div>
     </div>
+    <div class="user-sidebar user-profile-sidebar">
+            <h2>Friends</h2>
+            <ul>
+                {% for friend in friends %}
+                    <li> <a href="{% url 'chat_detail' friend.id %}">{{ friend.username }}</a>  <span class="msg"></span></li>
+                {% endfor %}
+            </ul>
+        </div>
     <script>
         // Get references to DOM elements
         const bioSection = document.getElementById('bio-section');
         const bioForm = document.getElementById('bio-form');
         const editBtn = document.getElementById('edit-btn');
         const cancelBtn = document.getElementById('cancel-btn');
+        const picForm = document.getElementById("pic-form");
+        const picFile = document.getElementById("pic");
 
         // Function to toggle between displaying bio text and bio form
         function toggleBioEdit() {
@@ -50,6 +75,32 @@
 
         // Event listener for cancel button click
         cancelBtn.addEventListener('click', toggleBioEdit);
+
+        picForm.onchange = function() {
+                picForm.submit();
+        };
+
+        setInterval(getNotification, 1000)
+
+        function getNotification(){
+            let url = "{% url 'notification' %}"
+
+            fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                let chatNotificationBtn = document.getElementsByClassName("msg")
+                for(let i = 0; i<data.length; i++){
+                    if (data[i] == 0) {
+                        chatNotificationBtn[i].innerText = ""
+                    }
+                    else{
+                        chatNotificationBtn[i].innerText = data[i]
+                    }
+                }
+            })
+            .catch(error => console.log(error))
+        }
     </script>
 </body>
 {% endblock my_profile %}

@@ -1,0 +1,10 @@
+{% extends "mychatapp/base.html" %}
+{% block content %}
+<h1>Friends List</h1>
+    <ul>
+        {% for friend in friends %}
+            <li>{{ friend }}</li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

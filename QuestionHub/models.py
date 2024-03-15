@@ -2,12 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
-    """
-    Additional user info that are not related to authentication
-    """
+    
+    #Additional user info that are not related to authentication
+    
     id = models.AutoField(primary_key=True, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(default="")
+    pic = models.ImageField(upload_to="img", blank=True, null=True)
+    friends = models.ManyToManyField(User, related_name='my_friends', blank=True)
     num_posts = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
     karma = models.IntegerField(default=0)
@@ -15,7 +17,25 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-    
+
+    def add_friend(self, friend):
+        self.friends.add(friend)
+
+    def remove_friend(self, friend):
+        self.friends.remove(friend)
+
+    def get_friends(self):
+        return self.friends.all()
+
+class ChatMessage(models.Model):
+    body = models.TextField()
+    msg_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="msg_sender")
+    msg_receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="msg_receiver")
+    seen = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.body
+
 class Topic(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=255)
