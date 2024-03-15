@@ -32,7 +32,6 @@ with open(API_KEY_FILE, 'r') as f:
 
 openai.api_key = API_KEY
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
