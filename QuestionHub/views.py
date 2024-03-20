@@ -334,6 +334,8 @@ def user_profile(request, id):
 
     trgt_user = get_object_or_404(User, pk=id)
     is_friend = request.user.userprofile.friends.filter(id=trgt_user.id).exists()
+    got_friend_request = request.user.userprofile.friend_requests.filter(id=trgt_user.id).exists()
+    sent_friend_request = trgt_user.userprofile.friend_requests.filter(id=request.user.id).exists()
     
     context = {
         'all_posts': posts,
@@ -341,7 +343,9 @@ def user_profile(request, id):
         'topics': topics,
         'users': users,
         'user': trgt_user,
-        'is_friend': is_friend
+        'is_friend': is_friend,
+        'got_friend_request': got_friend_request,
+        'sent_friend_request': sent_friend_request
     }
             
     return render(request, 'user_detail.html', context)
@@ -610,13 +614,97 @@ def add_friend(request, friend_id):
 
     # Check if already a friend
     if user_profile.friends.filter(id=maybe_friend.id).exists():
+        # remove any pending friend requests
+        try:
+            user_profile.remove_friend_request(maybe_friend)
+            maybe_friend.userprofile.remove_friend_request(request.user)
+        except IntegrityError:
+            # Prevent Database overlapped
+            return HttpResponse(status=200)  # redirect('/profile/'+str(friend_id))
         return HttpResponse(status=200)#redirect('/profile/'+str(friend_id))
 
     # Otherwise add the friend
     try:
-        user_profile.friends.add(maybe_friend)
+        user_profile.add_friend(maybe_friend)
+        maybe_friend.userprofile.add_friend(request.user)
     except IntegrityError:
         # Prevent Database overlapped
         return HttpResponse(status=200)#redirect('/profile/'+str(friend_id))
 
+    #remove any pending friend requests
+    try:
+        user_profile.remove_friend_request(maybe_friend)
+        maybe_friend.userprofile.remove_friend_request(request.user)
+    except IntegrityError:
+        # Prevent Database overlapped
+        return HttpResponse(status=200)  # redirect('/profile/'+str(friend_id))
+
     return HttpResponse(status=200)#redirect('/profile/'+str(friend_id))
+
+
+@login_required
+def send_friend_request(request, friend_id):
+    User = get_user_model()
+    maybe_friend = get_object_or_404(User, id=friend_id)
+    user_profile = request.user.userprofile
+
+    # Check if I've already received a friend request from this user.
+    if user_profile.friend_requests.filter(id=maybe_friend.id).exists():
+        #If so, immediately add as friend
+        try:
+            user_profile.add_friend(maybe_friend)
+            maybe_friend.userprofile.add_friend(request.user)
+        except IntegrityError:
+            return HttpResponse(status=200)
+
+        # remove any pending friend requests
+        try:
+            user_profile.remove_friend_request(maybe_friend)
+            maybe_friend.userprofile.remove_friend_request(request.user)
+        except IntegrityError:
+            return HttpResponse(status=200)
+        return HttpResponse(status=200)
+
+    elif maybe_friend.userprofile.friend_requests.filter(id=request.user.id).exists():
+        # Otherwise check if I've already sent a friend request. Do nothing if this is true
+        return HttpResponse(status=200)
+
+    # send a friend request
+    try:
+        maybe_friend.userprofile.add_friend_request(request.user)
+    except IntegrityError:
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=200)
+
+
+@login_required
+def reject_friend_request(request, friend_id):
+    User = get_user_model()
+    maybe_friend = get_object_or_404(User, id=friend_id)
+    user_profile = request.user.userprofile
+
+    # remove any pending friend requests between me and other user, if any
+    try:
+        maybe_friend.userprofile.remove_friend_request(request.user)
+        user_profile.remove_friend_request(maybe_friend)
+    except IntegrityError:
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=200)
+
+@login_required
+def unfriend(request, friend_id):
+    User = get_user_model()
+    maybe_friend = get_object_or_404(User, id=friend_id)
+    user_profile = request.user.userprofile
+
+    # remove friend associations between me and other user
+    try:
+        maybe_friend.userprofile.remove_friend(request.user)
+        user_profile.remove_friend(maybe_friend)
+    except IntegrityError:
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=200)
+
