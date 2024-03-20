@@ -2,13 +2,41 @@
 {% block user_profile %}
 {% load static %}
 <style>
-    #add-friend {
-                {% if is_friend %}
+    #is-stranger {
+                {% if is_friend or got_friend_request or sent_friend_request %}
                 display: none;
                 {% else %}
                 display: block;
                 {% endif %}
             }
+    #got-friend-request {
+                {% if is_friend %}
+                display: none;
+                {% elif got_friend_request %}
+                display: block;
+                {% else %}
+                display: none;
+                {% endif %}
+            }
+    #sent-friend-request {
+                {% if is_friend or got_friend_request%}
+                display: none;
+                {% elif sent_friend_request %}
+                display: block;
+                {% else %}
+                display: none;
+                {% endif %}
+            }
+    #is-friend {
+                {% if is_friend %}
+                display: block;
+                {% else %}
+                display: none;
+                {% endif %}
+            }
+    .friend-button {
+        width: 100%;
+    }
 </style>
 <body>
     <div class="user-container">
@@ -16,7 +44,17 @@
             <h1>Author Profile - {{user.username}}</h1>
         </header>
         <div class="user-content">
-            <div id="add-friend"><button onclick="addFriend()">Add Friend</button></div>
+            <div id="is-stranger" class="friend-button"><button onclick="addFriend()">Add Friend</button></div>
+            <div id="got-friend-request" class="friend-button">{{user.username}} has sent you a friend request!
+                <button onclick="acceptFriend()">Accept</button>
+                <button onclick="rejectFriend()">Reject</button>
+            </div>
+            <div id="sent-friend-request" class="friend-button">You've sent {{user.username}} a friend request!
+                <button onclick="rejectFriend()">Cancel</button>
+            </div>
+            <div id="is-friend" class="friend-button">{{user.username}} is your friend!
+                <button onclick="unfriend()">Unfriend</button>
+            </div>
             <div class="profile-pic-container" >
                 {% if user.userprofile.pic %}
                     <img class="profile-pic" src="{{ user.userprofile.pic.url }}" alt="profile picture"/>
@@ -36,14 +74,40 @@
     </div>
 </body>
 <script>
-    const friendButton = document.getElementById("add-friend");
+    const isStranger = document.getElementById("is-stranger");
+    const gotFriendRequest = document.getElementById("got-friend-request");
+    const sentFriendRequest = document.getElementById("sent-friend-request");
+    const isFriend = document.getElementById("is-friend");
     function addFriend() {
       var xhr = new XMLHttpRequest();
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState == XMLHttpRequest.DONE) {
           if (xhr.status == 200) {
-            friendButton.style.display = 'none';
+            isStranger.style.display = 'none';
+            sentFriendRequest.style.display = 'block';
+            gotFriendRequest.style.display = 'none';
+            isStranger.style.display = 'none';
+          } else {
+            console.error('Request failed: ' + xhr.status);
+          }
+        }
+      };
+
+      xhr.open("GET", "{% url 'send_friend_request' user.id %}", true);
+      xhr.send();
+    }
+
+    function acceptFriend() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            gotFriendRequest.style.display = 'none';
+            sentFriendRequest.style.display = 'none';
+            isFriend.style.display = 'block';
+            isStranger.style.display = 'none';
           } else {
             console.error('Request failed: ' + xhr.status);
           }
@@ -53,6 +117,47 @@
       xhr.open("GET", "{% url 'add_friend' user.id %}", true);
       xhr.send();
     }
+
+    function rejectFriend() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            gotFriendRequest.style.display = 'none';
+            sentFriendRequest.style.display = 'none';
+            isFriend.style.display = 'none';
+            isStranger.style.display = 'block';
+          } else {
+            console.error('Request failed: ' + xhr.status);
+          }
+        }
+      };
+
+      xhr.open("GET", "{% url 'reject_friend_request' user.id %}", true);
+      xhr.send();
+    }
+
+    function unfriend() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            gotFriendRequest.style.display = 'none';
+            sentFriendRequest.style.display = 'none';
+            isFriend.style.display = 'none';
+            isStranger.style.display = 'block';
+          } else {
+            console.error('Request failed: ' + xhr.status);
+          }
+        }
+      };
+
+      xhr.open("GET", "{% url 'unfriend' user.id %}", true);
+      xhr.send();
+    }
+
 
 </script>
 {% endblock user_profile %}
