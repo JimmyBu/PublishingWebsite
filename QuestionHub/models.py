@@ -10,6 +10,7 @@ class UserProfile(models.Model):
     bio = models.TextField(default="")
     pic = models.ImageField(upload_to="img", blank=True, null=True)
     friends = models.ManyToManyField(User, related_name='my_friends', blank=True)
+    friend_requests = models.ManyToManyField(User, related_name='pending_friend_requests', blank=True) #people who tried to add me
     num_posts = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
     karma = models.IntegerField(default=0)
@@ -18,14 +19,47 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def add_friend_request(self, maybe_friend):
+        self.friend_requests.add(maybe_friend)
+
     def add_friend(self, friend):
+        """
+        Designate a user as my friend (and adding me to their friend list as well)
+        :param friend:
+        :return:
+        """
         self.friends.add(friend)
 
     def remove_friend(self, friend):
+        """
+        Unfriend a user
+        :param friend:
+        :return:
+        """
         self.friends.remove(friend)
 
+    def remove_friend_request(self, maybe_friend):
+        """
+        Reject a pending friend request and cancel any friend request I've sent to this user
+        :param maybe_friend:
+        :return:
+        """
+        self.friend_requests.remove(maybe_friend)
+
     def get_friends(self):
+        """
+        List all my friends
+        :return:
+        """
         return self.friends.all()
+
+    def get_friend_requests(self):
+        """
+        List all pending friend requests I've received
+        :return:
+        """
+        return self.friend_requests.all()
+
 
 class ChatMessage(models.Model):
     body = models.TextField()
