@@ -342,9 +342,15 @@ def user_profile(request, id):
         return redirect("my_profile")
 
     trgt_user = get_object_or_404(User, pk=id)
-    is_friend = request.user.userprofile.friends.filter(id=trgt_user.id).exists()
-    got_friend_request = request.user.userprofile.friend_requests.filter(id=trgt_user.id).exists()
-    sent_friend_request = trgt_user.userprofile.friend_requests.filter(id=request.user.id).exists()
+
+    if request.user.is_authenticated:
+        is_friend = request.user.userprofile.friends.filter(id=trgt_user.id).exists()
+        got_friend_request = request.user.userprofile.friend_requests.filter(id=trgt_user.id).exists()
+        sent_friend_request = trgt_user.userprofile.friend_requests.filter(id=request.user.id).exists()
+    else:
+        is_friend = False
+        got_friend_request = False
+        sent_friend_request = False
     
     context = {
         'all_posts': posts,
@@ -355,7 +361,8 @@ def user_profile(request, id):
         'is_friend': is_friend,
         'got_friend_request': got_friend_request,
         'sent_friend_request': sent_friend_request,
-        'current_user': current_user
+        'current_user': current_user,
+	'not_authenticated': not request.user.is_authenticated
     }
             
     return render(request, 'user_detail.html', context)
