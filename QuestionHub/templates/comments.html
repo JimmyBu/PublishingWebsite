@@ -5,19 +5,19 @@
 
     {% if not comment_detail in comment_vote_list %}
            
-    <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
-    <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+    <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn"><i class="fa-regular fa-thumbs-up"></i></a>
+    <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn"><i class="fa-regular fa-thumbs-down"></i></a>
 
     {% else %}
         {% for vote in user_votes %}
         {% if vote.comment == comment_detail %}
             {% if vote.vote_type == 'U' %}
-                <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn--undo">Undo Upvote</a>
-                <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+                <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn--undo"><i class="fa-solid fa-thumbs-up"></i></a>
+                <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn"><i class="fa-regular fa-thumbs-down"></i></a>
             {% endif %}
             {% if vote.vote_type == 'D' %}
-            <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
-            <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn--undo">Undo Downvote</a>
+            <a href="{% url 'upvote_comment' comment_detail.id 'U' %}" class="vote-btn upvote-btn"><i class="fa-regular fa-thumbs-up"></i></a>
+            <a href="{% url 'upvote_comment' comment_detail.id 'D' %}" class="vote-btn downvote-btn--undo"><i class="fa-solid fa-thumbs-down"></i></a>
             {% endif %}
         {% endif %}
     {% endfor %}
@@ -26,15 +26,20 @@
     Submitted By: <a href="{% url 'user_profile' comment_detail.user.id %}"><b>{{ comment_detail.user.username }}</b></a>
     Date: <b>{{  comment_detail.timestamp}}</b>
 
+    {% if user.is_authenticated %}
+    <button class="reply-button" onclick="handleReplyButton({{ comment_detail.id }})"><i class="fa-solid fa-reply"></i></button>
+    {%endif%}
+
     {% if user.is_authenticated and comment_detail.user.username == user.username %}
-        <a style="color: red" href="{% url 'delete_comment' comment_detail.id 'delete' 'delete' %}">Delete Comment</a>
-        <button id="edit-comment-btn-{{ comment_detail.id }}">Edit Comment</button> <!-- Add edit button -->
+        
+        <button id="edit-comment-btn-{{ comment_detail.id }}"><i class="fa-regular fa-pen-to-square"></i></button> <!-- Add edit button -->
+        <button><a href="{% url 'delete_comment' comment_detail.id 'delete' 'delete' %}"><i class="fa-solid fa-trash" style="color: #000000;"></i></a></button>
         <form id="edit-comment-form-{{ comment_detail.id }}" style="display: none;" method="POST" action="{% url 'edit_comment' comment_detail.id %}" class="respond-form">
             {% csrf_token %}
             <textarea name="body">{{ comment_detail.body }}</textarea> <!-- Textarea to edit comment -->
-            <button type="submit" value="Send" class="submit-button">Save</button>
-            <button type="button" class="cancel-btn">Cancel</button>
+            <button type="submit" value="Send" class="submit-button"><i class="fa-solid fa-check"></i></button>
         </form>
+    
         <!-- JavaScript code for toggling edit form -->
         <script>
             // Get references to DOM elements
@@ -50,6 +55,27 @@
                 }
             }
 
+            function handleReplyButton(commentID) {
+                const commentFormContainer = document.getElementById('reply-form-' + commentID);
+                if (commentFormContainer) {
+                    if (commentFormContainer.style.display === 'none' || commentFormContainer.style.display === '') {
+                        commentFormContainer.style.display = 'block'; // Show the reply form
+                    } else {
+                        commentFormContainer.style.display = 'none'; // Hide the reply form
+                    }
+                }
+            }
+
+            function handleCancelReply(commentID) {
+                const commentFormContainer = document.getElementById('reply-form-' + commentID);
+                if (commentFormContainer) {
+                    commentFormContainer.style.display = 'none'; // Hide the reply form
+                }
+            }
+
+
+
+
             // Event listener for edit button click
             editBtn.addEventListener('click', toggleEditComment);
         </script>
@@ -58,19 +84,20 @@
     
 
     <!--allow replies for comments-->
-    <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container" style=:"display: none;">
+    <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container" style="display: none;">
         <form method="POST" action="/reply/" class="reply-form">
             {% csrf_token %}
             <input type="hidden" name="post" value="{{ post.id }}"/>
             <input type="hidden" name="parent" value="{{ comment_detail.id }}"/>
             {{ reply.body }}  <!--get from the reply form-->
-            <button type="button" class="cancel-button">Cancel</button>
             <input type="submit" class="reply-button" value="Send"/>
             {% if user.is_authenticated %}
             <!-- Delete button for authenticated users -->
             {% if user.id == comment_detail.user.id %}
-                <button class="delete-comment">Delete</button>
+                
+                <button class="cancel-button" onclick="handleCancelReply({{ comment_detail.id }})">Close</button>
             {% endif %}
+            
         {% endif %}
         </form>
     </blockquote>
@@ -82,3 +109,4 @@
     {% endfor %}
 
 </blockquote>
+

@@ -1,0 +1,8 @@
+{% if current_user.is_authenticated %}
+<span class="create-post-button">
+    <a href="{% url 'create_post' %}">
+        <i class="fa-solid fa-plus"></i>
+        <i class="fa-solid fa-plus fa-bounce"></i> <!-- Hidden by default -->
+    </a>
+</span>
+{% endif %}
