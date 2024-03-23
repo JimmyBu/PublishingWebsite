@@ -7,7 +7,9 @@ class TestViews(TestCase):
     def setUp(self):
         # Create a test user and profile
         self.user = User.objects.create_user(username='testuser', password='Password123!')
+        self.user2 = User.objects.create_user(username='testuser2', password='Password123!')
         self.profile = UserProfile.objects.create(user=self.user)
+        self.profile2 = UserProfile.objects.create(user=self.user2)
         # Create test topics
         self.topic1 = Topic.objects.create(name='Topic 1')
         self.topic2 = Topic.objects.create(name='Topic 2')
@@ -79,6 +81,87 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)
         updated_profile = UserProfile.objects.get(user=self.user)
         self.assertEqual(updated_profile.bio, 'New bio')
+
+    #test sending friend request
+    def test_send_friend_request(self):
+        #test sending a friend request:
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        self.assertEqual(response.status_code, 200)
+        updated_profile2 = UserProfile.objects.get(user=self.user2)
+        self.assertTrue(updated_profile2.friend_requests.filter(id=self.user.id).exists())
+
+        #test sending friend request simultaneously:
+        self.client.force_login(self.user2)
+        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user.id}))
+        self.assertEqual(response.status_code, 200)
+        updated_profile2 = UserProfile.objects.get(user=self.user2)
+        self.assertTrue(updated_profile2.friends.filter(id=self.user.id).exists())
+        self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
+        updated_profile = UserProfile.objects.get(user=self.user)
+        self.assertTrue(updated_profile.friends.filter(id=self.user2.id).exists())
+        self.assertFalse(updated_profile.friend_requests.filter(id=self.user2.id).exists())
+
+
+    #test accepting a friend request that was received
+    def test_accept_friend_request(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+
+        self.client.force_login(self.user2)
+        response = self.client.post(reverse('add_friend', kwargs={'id': self.user.id}))
+        self.assertEqual(response.status_code, 200)
+
+        updated_profile2 = UserProfile.objects.get(user=self.user2)
+        self.assertTrue(updated_profile2.friends.filter(id=self.user.id).exists())
+        self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
+        updated_profile = UserProfile.objects.get(user=self.user)
+        self.assertTrue(updated_profile.friends.filter(id=self.user2.id).exists())
+        self.assertFalse(updated_profile.friend_requests.filter(id=self.user2.id).exists())
+
+
+    #cancel a friend request already sent
+    def test_cancel_friend_request(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        response = self.client.post(reverse('reject_friend_request', kwargs={'id': self.user2.id}))
+        self.assertEqual(response.status_code, 200)
+
+        updated_profile2 = UserProfile.objects.get(user=self.user2)
+        self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
+
+
+    #reject a friend request that was received
+    def test_reject_friend_request(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        self.client.force_login(self.user2)
+        response = self.client.post(reverse('reject_friend_request', kwargs={'id': self.user.id}))
+        self.assertEqual(response.status_code, 200)
+
+        updated_profile2 = UserProfile.objects.get(user=self.user2)
+        self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
+
+
+    #unfriending someone after accepting their friend request
+    def test_unfriend(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+
+        self.client.force_login(self.user2)
+        response = self.client.post(reverse('add_friend', kwargs={'id': self.user.id}))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(reverse('unfriend', kwargs={'id': self.user.id}))
+        self.assertEqual(response.status_code, 200)
+
+        updated_profile2 = UserProfile.objects.get(user=self.user2)
+        self.assertFalse(updated_profile2.friends.filter(id=self.user.id).exists())
+        self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
+        updated_profile = UserProfile.objects.get(user=self.user)
+        self.assertFalse(updated_profile.friends.filter(id=self.user2.id).exists())
+        self.assertFalse(updated_profile.friend_requests.filter(id=self.user2.id).exists())
+
 
     #Test logging in
     def test_login(self):
@@ -221,3 +304,6 @@ class TestViews(TestCase):
         self.assertEqual(self.response.score, 0)
         self.assertEqual(self.profile.karma, 0)
         self.assertEqual(Vote.objects.filter(user=self.user, comment=self.response).count(), 0)
+
+
+
