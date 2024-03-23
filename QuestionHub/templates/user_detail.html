@@ -3,14 +3,14 @@
 {% load static %}
 <style>
     #is-stranger {
-                {% if is_friend or got_friend_request or sent_friend_request %}
+                {% if not_authenticated or is_friend or got_friend_request or sent_friend_request %}
                 display: none;
                 {% else %}
                 display: block;
                 {% endif %}
             }
     #got-friend-request {
-                {% if is_friend %}
+                {% if not_authenticated or is_friend %}
                 display: none;
                 {% elif got_friend_request %}
                 display: block;
@@ -19,7 +19,7 @@
                 {% endif %}
             }
     #sent-friend-request {
-                {% if is_friend or got_friend_request%}
+                {% if not_authenticated or is_friend or got_friend_request%}
                 display: none;
                 {% elif sent_friend_request %}
                 display: block;
@@ -29,6 +29,13 @@
             }
     #is-friend {
                 {% if is_friend %}
+                display: block;
+                {% else %}
+                display: none;
+                {% endif %}
+            }
+    #not-authenticated {
+                {% if not_authenticated %}
                 display: block;
                 {% else %}
                 display: none;
@@ -55,6 +62,7 @@
             <div id="is-friend" class="friend-button">{{user.username}} is your friend!
                 <button onclick="unfriend()">Unfriend</button>
             </div>
+            <div id="not-authenticated" class="friend-button">Log in to add {{user.username}} as friend!</div>
             <div class="profile-pic-container" >
                 {% if user.userprofile.pic %}
                     <img class="profile-pic" src="{{ user.userprofile.pic.url }}" alt="profile picture"/>
