@@ -86,14 +86,14 @@ class TestViews(TestCase):
     def test_send_friend_request(self):
         #test sending a friend request:
         self.client.force_login(self.user)
-        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
         self.assertEqual(response.status_code, 200)
         updated_profile2 = UserProfile.objects.get(user=self.user2)
         self.assertTrue(updated_profile2.friend_requests.filter(id=self.user.id).exists())
 
         #test sending friend request simultaneously:
         self.client.force_login(self.user2)
-        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user.id}))
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user.id}))
         self.assertEqual(response.status_code, 200)
         updated_profile2 = UserProfile.objects.get(user=self.user2)
         self.assertTrue(updated_profile2.friends.filter(id=self.user.id).exists())
@@ -106,10 +106,10 @@ class TestViews(TestCase):
     #test accepting a friend request that was received
     def test_accept_friend_request(self):
         self.client.force_login(self.user)
-        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
 
         self.client.force_login(self.user2)
-        response = self.client.post(reverse('add_friend', kwargs={'id': self.user.id}))
+        response = self.client.post(reverse('add_friend', kwargs={'friend_id': self.user.id}))
         self.assertEqual(response.status_code, 200)
 
         updated_profile2 = UserProfile.objects.get(user=self.user2)
@@ -123,8 +123,8 @@ class TestViews(TestCase):
     #cancel a friend request already sent
     def test_cancel_friend_request(self):
         self.client.force_login(self.user)
-        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
-        response = self.client.post(reverse('reject_friend_request', kwargs={'id': self.user2.id}))
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
+        response = self.client.post(reverse('reject_friend_request', kwargs={'friend_id': self.user2.id}))
         self.assertEqual(response.status_code, 200)
 
         updated_profile2 = UserProfile.objects.get(user=self.user2)
@@ -134,9 +134,9 @@ class TestViews(TestCase):
     #reject a friend request that was received
     def test_reject_friend_request(self):
         self.client.force_login(self.user)
-        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
         self.client.force_login(self.user2)
-        response = self.client.post(reverse('reject_friend_request', kwargs={'id': self.user.id}))
+        response = self.client.post(reverse('reject_friend_request', kwargs={'friend_id': self.user.id}))
         self.assertEqual(response.status_code, 200)
 
         updated_profile2 = UserProfile.objects.get(user=self.user2)
@@ -146,13 +146,13 @@ class TestViews(TestCase):
     #unfriending someone after accepting their friend request
     def test_unfriend(self):
         self.client.force_login(self.user)
-        response = self.client.post(reverse('send_friend_request', kwargs={'id': self.user2.id}))
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
 
         self.client.force_login(self.user2)
-        response = self.client.post(reverse('add_friend', kwargs={'id': self.user.id}))
+        response = self.client.post(reverse('add_friend', kwargs={'friend_id': self.user.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(reverse('unfriend', kwargs={'id': self.user.id}))
+        response = self.client.post(reverse('unfriend', kwargs={'friend_id': self.user.id}))
         self.assertEqual(response.status_code, 200)
 
         updated_profile2 = UserProfile.objects.get(user=self.user2)
