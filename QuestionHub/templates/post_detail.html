@@ -45,14 +45,61 @@
         {% endif %}
     </div>
 
-
     {% if user.is_authenticated %}
-        <form method="POST" action="" class="respond-form">
+        <form method="POST" action="" id="comment-form" class="respond-form">
         {% csrf_token %}
         <label for="{{ comment.body.id_for_label }}">Your Comment:</label>
-        {{ comment.body }} <!--get the comment form-->
+        <!-- {{ comment.body }} get the comment form -->
+        <textarea id="comment-body" name="body"></textarea>
+        <input type="hidden" id="suggestion-used-input" name="suggestion_used">
         <input type="submit" value="Send" class="submit-button"/>
         </form>
+    {% endif %}
+
+    {% if moderation_required %}
+    <!-- Modal box for moderation message -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>The Text Moderation AI has detected that your comment contains profanity/vulgarity. Your comment has been removed, please reconsider your words next time you leave a comment. You can also choose one of the following comments suggested by the AI:</p>
+            <ol style="list-style-type:none;">
+                {% for suggestion in suggestions %} 
+                <li>
+                    <button onclick="useSuggestion('{{ suggestion }}', true)">{{ suggestion }}</button>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+
+    <!-- JavaScript code for displaying and hiding the modal -->
+    <script>
+        function closeModal() {
+            var modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        function useSuggestion(suggestion, suggestionUsed) {
+            var suggestionText = suggestion.replace(/^\d+\.\s*/, '');
+
+            var commentField = document.getElementById('comment-body');
+            commentField.value = suggestionText;
+
+            var suggestionUsedInput = document.getElementById('suggestion-used-input');
+            suggestionUsedInput.value = suggestionUsed;
+
+            // Automatically submit the form
+            var form = document.getElementById('comment-form');
+            form.submit();
+
+            closeModal(); // Close the modal after selecting a suggestion
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var modal = document.getElementById('modal');
+            modal.style.display = 'block';
+        });
+    </script>
     {% endif %}
 
 </div>
