@@ -2,16 +2,16 @@
     <div class="main-menu">
         <ul>
             <li>
-                <b> Project X </b>
+                <a class = "project-x-btn" href="{% url 'home' %}"><b>project x</b></a>
             </li>
-            <li>
-                <a href="{% url 'home' %}">Posts</a>
+            {% if current_page == 'topic_detail' %}
+            <li class="current-topic">
+                <span>{{ topic.name }}</span>
             </li>
-            <li>
-                {%include 'ordering.html' %}
-            </li>
+            {% endif %}
             <li>
                 {% include 'topic_selection.html' %}
+                
             </li>
             <li>
                 {% include 'post_selection.html' %}
@@ -19,24 +19,31 @@
             <li>
                 {% include 'user_selection.html' %}
             </li>
+            <li>
+                {%include 'ordering.html' %}
+            </li>
+            {% if current_user.is_authenticated %}      
+        
+            <li>
+                <a href="{% url 'create_topic' %}">Create a Topic</a>
+            </li>
+            {% endif %}
+
         </ul>
     </div>
     <div class="user-menu">
         <ul>
-            {% if user.is_authenticated %}
-            <li>
-                <a href="{% url 'create_post' %}">Create a Post</a>
+            {% if current_user.is_authenticated %}
+            <li class="user-dropdown">
+                <button class="username-btn">{{ current_user.username }} <i class="fas fa-caret-down"></i></button>
+                <span class="karma">Karma {{ current_user.userprofile.karma }}</span>
+                <ul class="submenu">
+                    <li><a href="{% url 'my_profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Log out</a></li>
+                </ul>
             </li>
+            
 
-            <li>
-                <a href="{% url 'create_topic' %}">Create a Topic</a>
-            </li>
-            <li>
-                <a href="{% url 'my_profile' %}">My Profile</a>
-            </li>
-            <li>
-                <a href="{% url 'logout' %}">Log out</a>
-            </li>
             {% else %}
             <li>
                 <a href="{% url 'login' %}">Log in</a>
@@ -46,12 +53,26 @@
             </li>
             {% endif %}
 
-            {% if current_page == 'topic_detail' %}
-            <li class="current-topic">
-                <span>{{ topic.name }}</span>
-            </li>
-            {% endif %}
+
         </ul>
     </div>
 
 </nav>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var usernameBtn = document.querySelector(".username-btn");
+        var submenu = document.querySelector(".submenu");
+
+        usernameBtn.addEventListener("click", function() {
+            submenu.classList.toggle("show");
+        });
+
+        // Close the submenu when clicking outside of it
+        window.addEventListener("click", function(event) {
+            if (!event.target.matches(".username-btn")) {
+                submenu.classList.remove("show");
+            }
+        });
+    });
+</script>

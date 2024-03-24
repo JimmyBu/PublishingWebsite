@@ -1,6 +1,7 @@
 {% extends './base.html' %}
 
 {% block post %}
+<div class="post-container">
 <div class="post-Page">
     <h1 class="post-list-title">
         {{ post.title }}
@@ -11,15 +12,15 @@
     Score: <b> {{ post.score }} </b>
     {% if user_vote %}
     {% if user_vote.vote_type == 'U' %}
-        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn--undo">Undo Upvote</a>
-        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn--undo"><i class="fa-solid fa-thumbs-up"></i></a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn"><i class="fa-regular fa-thumbs-down"></i></a>
     {% elif user_vote.vote_type == 'D' %}
-        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
-        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn--undo">Undo Downvote</a>
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn"><i class="fa-regular fa-thumbs-up"></i></a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn--undo"><i class="fa-solid fa-thumbs-down"></i></a>
     {% endif %}
     {% else %}
-        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn">Upvote</a>
-        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn">Downvote</a>
+        <a href="{% url 'upvote_post' post.id 'U' %}" class="vote-btn upvote-btn"><i class="fa-regular fa-thumbs-up"></i></a>
+        <a href="{% url 'upvote_post' post.id 'D' %}" class="vote-btn downvote-btn"><i class="fa-regular fa-thumbs-down"></i></a>
     {% endif %}
     Submitted By: <a href="{% url 'user_profile' post.author.id %}"><b>{{ post.author.username }}</b></a>
     Date: <b>{{ post.timestamp }}</b>
@@ -28,18 +29,28 @@
         <a style="color: red" href="{% url 'delete_post' post.id 'delete' 'delete' %}">Delete Post</a>
     {% endif %}
 </div>
+</div>
+<div class="comment-section">
     <div class="comment-container">
         <br>
-        <h4 class="comment-heading">Comments</h4>
-        </br>
-        
+        <h4 class="comment-heading">Comments </h4>
+        <br>
+        <div class="base-comment">   
+            {% if user.is_authenticated %}
+            <form id="respond-form" method="POST" action="" class="respond-form">
+                {% csrf_token %}
+                {{ comment.body }} <!--get the comment form-->
+                <input type="submit" value="Comment" class="submit-button"/>
+            </form>
+            {% endif %}
+        </div>
+
         {% if not post.comments.all %}
             <!--a buffer for showing no comments yet-->
             <p class="no-comments">Become the first comment.</p>
         {% else %}
             {% for comment_detail in post.get_comment %}
                 {% include 'comments.html' with comment_detail=comment_detail %}
-            
                 <!--this comment_detail is parsed into the comments as the variables there-->
             {% endfor %}
         {% endif %}
@@ -104,5 +115,11 @@
 
 </div>
 
-{% endblock %}
+<script>
+    // Function to clear the respond form fields upon page load
+    window.onload = function() {
+        document.getElementById("respond-form").reset(); // Resetting the form fields
+    }
+</script>
 
+{% endblock %}
