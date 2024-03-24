@@ -3,12 +3,14 @@
     <head>
         <meta charset="UTF-8">
         <title> Home Page</title>
+        <script src="https://kit.fontawesome.com/2bd81437d5.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
         {% load bootstrap5 %}
             {% bootstrap_css %}
             {% bootstrap_javascript%}
         <style>
             body {
-                font-family: Tahoma, sans-serif;
+                font-family: 'Montserrat', sans-serif;
                 font-size: 16px;
                 line-height: 1.5;
                 color: #333;
@@ -37,6 +39,10 @@
                 text-decoration: underline;
             }
 
+            button {
+            border: none;
+
+            }
             /* Login Form */
             .Page-login {
                 max-width: 400px;
@@ -155,6 +161,11 @@
                 justify-content: center;
             }
 
+            .comment-section {
+                display: flex;
+                justify-content: center;
+            }
+
             .post-list-item {
                 border: 1px solid #ccc;
                 padding: 15px;
@@ -164,6 +175,24 @@
                 width: calc(100% / 2 - 40px);
                 max-width: 1000px;
             }
+
+            .reply-form-wrapper {
+                margin-top: 10px; /* Adjust as needed */
+            }
+            
+            .reply-form-container {
+                padding: 10px;
+            }
+            
+            .reply-form {
+                margin-top: 10px; /* Adjust as needed */
+            }
+
+            .comment-form-style {
+                width: 500px;  /* Adjust the width as needed */
+                height: 100px; /* Adjust the height as needed */
+                /* Add any additional styling properties */
+            }
             
             .post-list-title {
                 font-size: 24px;
@@ -171,9 +200,27 @@
                 color: #333;
             }
             .navbar {
-                background-color: #E4E4F8;
-                padding: 10px 20px;
+                background: rgb(2,0,36);
+                background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(228,228,248,1) 0%, rgba(200,200,255,1) 100%);
+                padding: 5px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
+        
+            .project-x-btn {
+                color: #000;
+                font-size: 28px;
+                font-family: 'Montserrat', sans-serif;
+                text-decoration: none;
+                text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+            }
+        
+            .project-x-btn:hover {
+                color: #333; 
+                text-decoration: none;
+            }        
+
             .main-menu, .user-menu {
                 display: inline-block;
                 margin: 0;
@@ -189,31 +236,26 @@
             .main-menu li:last-child, .user-menu li:last-child {
                 margin-right: 0;
             }
-            .delete-comment, .reply-button {
-                background-color: #dc3545;
-                color: #fff;
-                border: none;
-                padding: 8px 16px;
-                cursor: pointer;
-                border-radius: 4px;
+            .post-Page {
+                justify-content: center;
+                padding-left: 20px;
+                text-align: left;
+                border: 1px solid #ccc;
+                padding: 15px;
+                margin-top: 20px;
+                background-color: #f9f9f9;
+                border-radius: 20px; 
+                width: calc(100% / 2 - 40px);
+                max-width: 1000px;
+           
+
+            }
+            .comment-container { 
+                padding-left: 20px;
+                align-items: left;
+                text-align: left;
             }
 
-            .reply-button {
-                background-color: #80DF64;
-                color: #fff;
-                border: none;
-                padding: 8px 16px;
-                cursor: pointer;
-                border-radius: 4px;
-            }
-            .cancel-button {
-                background-color: #DFDFDF;
-                color: #fff;
-                border: none;
-                padding: 8px 16px;
-                cursor: pointer;
-                border-radius: 4px;
-            }
             
             .reply-form-container {
                 margin-top: 10px;
@@ -340,10 +382,12 @@
             }
            
             .current-topic {
-                font-weight: bold;
-                color: #000000; /* Black color */
-                font-size: 16px; /* Slightly bigger font size */
-                float: right; /* Align on the right */
+                color: #000;
+                font-size: 28px;
+                font-family: 'Montserrat', sans-serif;
+                text-decoration: none;
+                text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+                text-transform: lowercase;
             }
             .user-header { /* Updated class name */
                 background-color: #E4E4F8;
@@ -363,6 +407,7 @@
                 border-radius: 5px;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
                 display: flex;
+                flex-wrap: wrap;
             }
             
 
@@ -513,13 +558,6 @@
                 right: 0;
             }
 
-            .user-profile-sidebar {
-                position: absolute;
-                top: 116px;
-                right: 0;
-            }
-
-
             .user-sidebar h2 {
                 font-size: 18px;
                 margin-bottom: 10px;
@@ -563,7 +601,6 @@
             /* The search field */
             #myInput {
               box-sizing: border-box;
-              background-image: url('searchicon.png');
               background-position: 14px 12px;
               background-repeat: no-repeat;
               font-size: 16px;
@@ -579,7 +616,6 @@
             /* The search field */
             #myInput-post {
               box-sizing: border-box;
-              background-image: url('searchicon.png');
               background-position: 14px 12px;
               background-repeat: no-repeat;
               font-size: 16px;
@@ -594,7 +630,6 @@
             /* The search field */
             #myInput-user {
               box-sizing: border-box;
-              background-image: url('searchicon.png');
               background-position: 14px 12px;
               background-repeat: no-repeat;
               font-size: 16px;
@@ -692,12 +727,123 @@
                 text-decoration: none;
                 cursor: pointer;
             }
+            .submenu {
+                display: none;
+                position: absolute;
+                background-color: white;
+                min-width: 120px;
+                box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+                z-index: 1;
+            }
+            
+            .submenu.show {
+                display: block;
+            }
+            .username-btn {
+                background-color: #3498db; /* Button background color */
+                color: #fff; /* Button text color */
+                padding: 8px 12px; /* Padding around the text */
+                border: none; /* Remove border */
+                border-radius: 5px; /* Add border-radius for rounded corners */
+                cursor: pointer; /* Add pointer cursor on hover */
+                font-weight: bold; /* Make the text bold */
+            }
+            
+            /* Style the button on hover */
+            .username-btn:hover {
+                background-color: #2980b9; /* Change background color on hover */
+            }
+            
+            /* Style the submenu */
+            .submenu {
+                display: none; /* Hide submenu by default */
+                position: absolute;
+                background-color: #fff; /* Submenu background color */
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+                border-radius: 5px; /* Add border-radius for rounded corners */
+                z-index: 1; /* Ensure the submenu is on top of other elements */
+                width: 150px; /* Set a fixed width for the submenu */
+                overflow: hidden; /* Hide any overflow content */
+            }
+            
+            /* Position the submenu relative to the username button */
+            .username-btn:hover + .submenu {
+                display: block;
+                top: calc(100% + 5px); /* Position the submenu below the username button */
+                left: 0; /* Align the submenu with the left edge of the username button */
+                max-height: calc(100vh - 10px); /* Limit the height of the submenu to fit within the viewport */
+                overflow-y: auto; /* Add vertical scrolling if the submenu exceeds the viewport height */
+            }
+            
+            /* Style the submenu items */
+            .submenu li {
+                padding: 8px 12px; /* Padding around the submenu items */
+                list-style-type: none; /* Remove bullet points */
+            }
+            
+            /* Style the submenu items on hover */
+            .submenu li:hover {
+                background-color: #f2f2f2; /* Change background color on hover */
+            }
+            .karma {
+                font-size: 14px; /* Adjust the font size as needed */
+                font-weight: bold;
+                color: #000;
+                text-align: center;
+                display: block;
+                margin-top: 5px; 
+            }
+            .create-post-button a {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 32px;
+                cursor: pointer;
+                box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow */
+            }
+            
+            .create-post-button a i {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 32px;
+                cursor: pointer;
+                box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow */
+                opacity: 1; /* Initially visible */
+                transition: opacity 0.3s ease-in-out; /* Add transition effect */
+            }
+            
+            .create-post-button a i.fa-bounce {
+                opacity: 0; /* Initially hidden */
+            }
+            
+            .create-post-button a:hover i.fa-plus {
+                opacity: 0; /* Hide the normal plus icon */
+            }
+            
+            .create-post-button a:hover i.fa-bounce {
+                opacity: 1; /* Show the bouncing plus icon on hover */
+            }
+            
 
         </style>
     </head>
 <body>
 
     {% include 'navbar.html' %}
+    {% include 'create_post_button.html'%}
     {% block register %}
     {% endblock %}
     {% block login %}

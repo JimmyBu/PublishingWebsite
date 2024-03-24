@@ -69,7 +69,13 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Response
         fields = ['body']
-
+        widgets = {
+            'body': forms.Textarea(attrs={
+                'placeholder': "Enter your comment here",
+                'class': 'comment-form-style',
+            })
+        }
+        
 class TopicForm(forms.ModelForm):
     class Meta:
         model = Topic
@@ -88,6 +94,8 @@ class ReplyForm(forms.ModelForm):
         fields = ['body']
         widgets = {
             'body': forms.Textarea(attrs={
-                'placeholder': "Put in your comments.",
+                'placeholder': "Enter your response here",
+                'class': 'comment-form-style',
             })
         }
+
