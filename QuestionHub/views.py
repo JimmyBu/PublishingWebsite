@@ -628,8 +628,8 @@ def reply_list(request):
                 r.user = request.user
                 r.post = Post(id=post_id)
                 r.parent = Response(id=parent_id)
-                modified_comment = modify_comment(r.body)  # Call the function to modify the comment
-                r.body = modified_comment
+                # modified_comment = modify_comment(r.body)  # Call the function to modify the comment
+                # r.body = modified_comment
                 r.save()
                 user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
                 user_profile.num_comments += 1
