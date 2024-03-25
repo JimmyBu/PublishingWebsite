@@ -1,0 +1,108 @@
+.chat-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+
+.header {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff; /* Change color to blue */
+}
+
+.chat-area {
+    max-height: 300px; /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.message {
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.sent {
+    background-color: #DCF8C6;
+    align-self: flex-end;
+}
+
+.received {
+    background-color: #EAEAEA;
+}
+
+.chat-box-sent {
+    border-radius: 5px;
+    margin-bottom: 2px; /* Add margin to create a gap */
+}
+
+.chat-box-received {
+    border-radius: 5px;
+    text-align: right;
+}
+
+.chat-input {
+    margin-top: 15px;
+}
+
+#id_body {
+    width: calc(100% - 80px); /* Adjust width as needed */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px; /* Add margin to create a gap */
+}
+
+button {
+    width: 70px;
+    padding: 8px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.profile-pic-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 50px; /* Adjust width as needed */
+    height: 50px; /* Adjust height as needed */
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+
+.profile-pic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.back-button {
+    display: block;
+    margin-top: 20px; /* Adjust margin as needed */
+    text-align: center;
+    text-decoration: none;
+    color: #007bff; /* Adjust color as needed */
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}
+
+
