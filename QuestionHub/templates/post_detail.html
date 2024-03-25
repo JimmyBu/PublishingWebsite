@@ -33,7 +33,7 @@
 <div class="comment-section">
     <div class="comment-container">
         <br>
-        <h4 class="comment-heading">Comments </h4>
+        <h4 class="comment-heading">Comments</h4>
         <br>
         <div class="base-comment">   
             {% if user.is_authenticated %}
@@ -56,16 +56,6 @@
         {% endif %}
     </div>
 
-    {% if user.is_authenticated %}
-        <form method="POST" action="" id="comment-form" class="respond-form">
-        {% csrf_token %}
-        <label for="{{ comment.body.id_for_label }}">Your Comment:</label>
-        <!-- {{ comment.body }} get the comment form -->
-        <textarea id="comment-body" name="body"></textarea>
-        <input type="hidden" id="suggestion-used-input" name="suggestion_used">
-        <input type="submit" value="Send" class="submit-button"/>
-        </form>
-    {% endif %}
 
     {% if moderation_required %}
     <!-- Modal box for moderation message -->
