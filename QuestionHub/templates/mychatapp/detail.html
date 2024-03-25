@@ -1,53 +1,17 @@
 {% extends "mychatapp/base.html" %}
 {% block content %}
 {% load static %}
-<style>
-.profile-pic .chat-container{
-  border-radius: 50%;
-}
-
-.profile-pic-container .chat-container{
-    width: 10%;
-}
-
-
-</style>
 
 <div class="chat-container">
-    <div class="main">
-        <div class="logo">
-            Chat
-        </div>
+    <div class="header">{{ friend.username }}</div>
 
-        <div class="sub-main">
-            <div class="profile-pic-container">
-                {% if friend.pic %}
-                    <img class="profile-pic" src="{{ friend.userprofile.pic.url }}" alt="profile picture"/>
-                {% else %}
-                    <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture">
-                {% endif %}
-            </div>
-            <p>@{{ friend.username }}</p>
-        </div>
-    </div>
-
-    <div class="header">Chat with {{ friend.username }}</div>
-
-    <div class="chat-area">
-        {% for message in messages %}
-            <div class="message {% if message.msg_sender == user %}sent{% else %}received{% endif %}">
-                <p>{{ message.body }}</p>
-            </div>
-        {% endfor %}
-    </div>
-
-    <div class="chat-body" id="chat-body">
+    <div class="chat-area" id="chat-area">
         {% for chat in chats %}
-            {% if chat.msg_sender == user and chat.msg_receiver == friend %}
+            {% if chat.msg_sender == user %}
                 <div class="chat-sent box">
                     {{ chat }}
                 </div>
-            {% elif chat.msg_sender == friend and chat.msg_receiver == user %}
+            {% else %}
                 <div class="chat-box-received">
                     {{ chat }}
                 </div>
@@ -55,31 +19,42 @@
         {% endfor %}
     </div>
 
+    <div class="sub-main">
+        <div class="profile-pic-container">
+            {% if friend.pic %}
+                <img class="profile-pic" src="{{ friend.userprofile.pic.url }}" alt="profile picture"/>
+            {% else %}
+                <img class="profile-pic" src="{% static 'img/default_profile_pic.png' %}" alt="default profile picture">
+            {% endif %}
+        </div>
+    </div>
+
     <div class="chat-input">
         <form method="post" id="myform">
             {% csrf_token %}
-            {{ form.as_p }}
+            <input type="text" id="id_body" name="body" placeholder="Type your message...">
             <button type="submit">Send</button>
         </form>
     </div>
 
+    <a href="{% url 'home' %}" class="back-button">Back to Posts</a>
 </div>
 
 <script>
     function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
-    }
-    return cookieValue;
+        return cookieValue;
     }
     const csrftoken = getCookie('csrftoken');
 
@@ -93,61 +68,88 @@
         const data = {msg: chatMessage};
         let url = "{% url 'sent_msg' friend.id %}";
         fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify(data),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data),
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data)
-            let chat_body = document.getElementById("chat-body")
-            let chatMessageBox = document.createElement("div")
-            chatMessageBox.classList.add("chat-box-sent")
-            chatMessageBox.innerText = data
-            chat_body.append(chatMessageBox)
-            document.getElementById("id_body").value = ""
+            console.log('Success:', data);
+            let chatArea = document.getElementById("chat-area");
+            let chatMessageBox = document.createElement("div");
+            chatMessageBox.classList.add("chat-box-sent");
+            chatMessageBox.innerText = data;
+            chatArea.append(chatMessageBox);
+            document.getElementById("id_body").value = "";
         })
         .catch((error) => {
-            console.error('Error:', error)
+            console.error('Error:', error);
         });
+        localStorage.setItem('messageAlignment', 'sent');
     }
 
-    setInterval(receiveMessages, 1000)
-    let counter = {{ num }}
+    setInterval(receiveMessages, 1000);
+    let counter = {{ num }};
 
-    function receiveMessages(){
-        let url = "{% url 'rec_msg' friend.id%}"
+    function receiveMessages() {
+        let url = "{% url 'rec_msg' friend.id %}";
 
         fetch(url)
         .then(response => response.json())
         .then(data => {
             console.log("Success:", data);
-            if (data.length == 0){
-
-            }else{
-                let lastMsg = data[data.length-1]
-                if(counter == data.length) {
-                    console.log("no new msg")
-                }
-                else{
-                    let chat_body = document.getElementById("chat-body")
-                    let chatMessageBox = document.createElement("div")
-                    chatMessageBox.classList.add("chat-box-received")
-                    chatMessageBox.innerText = lastMsg
-                    chat_body.append(chatMessageBox)
-                    document.getElementById("id_body").value = ""
+            if (data.length == 0) {
+                // No new messages
+            } else {
+                let lastMsg = data[data.length - 1];
+                if (counter == data.length) {
+                    console.log("no new msg");
+                } else {
+                    let chatArea = document.getElementById("chat-area");
+                    let chatMessageBox = document.createElement("div");
+                    chatMessageBox.classList.add("chat-box-received");
+                    chatMessageBox.innerText = lastMsg;
+                    chatArea.append(chatMessageBox);
+                    document.getElementById("id_body").value = "";
                 }
             }
-            counter = data.length
+            counter = data.length;
         })
         .catch((error) => {
-            console.error('Error:', error)
+            console.error('Error:', error);
         });
+        localStorage.setItem('messageAlignment', 'received');
+    }
+    function getMessageAlignment() {
+        return localStorage.getItem('messageAlignment') || 'received';
     }
 
+    function setNewMessageAlignment(messageElement) {
+        const messageAlignment = getMessageAlignment();
+        if (messageAlignment === 'sent') {
+            messageElement.classList.add('chat-box-sent');
+            messageElement.classList.remove('chat-box-received');
+        } else {
+            messageElement.classList.remove('chat-box-sent');
+            messageElement.classList.add('chat-box-received');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatMessages = document.querySelectorAll('.chat-area .chat-box');
+        chatMessages.forEach(function (messageElement) {
+            setNewMessageAlignment(messageElement);
+        });
+    });
+
+    document.addEventListener('DOMNodeInserted', function (event) {
+        if (event.target.classList && event.target.classList.contains('chat-box')) {
+            setNewMessageAlignment(event.target);
+        }
+    });
 </script>
 
 {% endblock %}
