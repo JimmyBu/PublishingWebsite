@@ -70,7 +70,9 @@ def modify_comment(comment):
         messages=[
             {
                 "role": "user",
-                "content": "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user, and modify the comment to replace those bad words. Example: Comment='what is happening my brothers' Since no modification is needed, Result='what is happening my brothers'. Also just give the result, do not give the reasoning as to what you identified. Now please moderate this comment:",
+                # "content": "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user, and modify the comment to replace those bad words. Example: Comment='what is happening my brothers' Since no modification is needed, Result='what is happening my brothers'. Also just give the result, do not give the reasoning as to what you identified. Now please moderate this comment:",
+                # "content": "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user. Example: Comment='what is happening my brothers' Since no modification is needed, Result='what is happening my brothers'. Another example: Comment='Damn you!' Since this moderation, return the word 'MODERATE'. Also just give the result, do not give the reasoning as to what you identified. Now please moderate this comment:",
+                "content" : "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user. You will be given a comment as an input. Now there are two scenarios. First scenario, you identify that there is NO profanity or vulgarity in the comment. You return the comment as is without modifications. Second scenario, you identify that there is profanity or vulgarity in the comment. You will now suggest three alternate comments the user can enter instead. The suggestions should be close to the original comment, you should focus on replacing the bad words with good ones or removing them outright, as long as the comment still makes sense grammatically. Examples: Input: Wow Output: Wow Input: I fucking hate you Output: 1. I dislike you 2. I despise you. 3. I do not like you. Note:  Please do not give your identification as in if you found profanity/vulgarity or not, just give either the suggestions or the original comment. Additional Note: Please give suggestions so that if those suggestions were given as input, there would be no moderation required if those suggestions were used as input again. Now please moderate this comment:",
             },
             {
                 "role": "user",
@@ -100,20 +102,37 @@ def post_detail(request, id):
         for vote in user_votes:
           comment_vote_list.append(vote.comment)
     
+    moderation_required = False
+    suggestions = []
     if request.method == "POST":
+        suggestion_used = request.POST.get('suggestion_used')
         try:
             comment = CommentForm(request.POST)
             if comment.is_valid():  # check the form is valid
-                c = comment.save(commit=False)  # commit = false delay the save
-                c.user = request.user  # fetch the current user
-                c.post = Post(id=id)  # fetch the current post
-                modified_comment = modify_comment(c.body)  # Call the function to modify the comment
-                c.body = modified_comment
-                c.save()  # then save
-                user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-                user_profile.num_comments += 1
-                user_profile.save()
-                redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
+                if suggestion_used != 'true':
+                    c = comment.save(commit=False)  # commit = false delay the save
+                    c.user = request.user  # fetch the current user
+                    c.post = Post(id=id)  # fetch the current post
+                    modified_comment = modify_comment(c.body)  # Call the function to modify the comment
+                    if modified_comment != c.body:
+                        moderation_required = True
+                        suggestions = modified_comment.split("\n")
+                    else:
+                        c.body = modified_comment
+                        c.save()  # then save
+                        user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+                        user_profile.num_comments += 1
+                        user_profile.save()
+                        redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
+                else:
+                    c = comment.save(commit=False)  # commit = false delay the save
+                    c.user = request.user  # fetch the current user
+                    c.post = Post(id=id)  # fetch the current post
+                    c.save()  # then save
+                    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+                    user_profile.num_comments += 1
+                    user_profile.save()
+                    redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
 
         except Exception as e:
             raise e
@@ -126,6 +145,8 @@ def post_detail(request, id):
         'topics': topics,
         'trending_topics': trending_topics,
         'users': users,
+        'moderation_required': moderation_required,
+        'suggestions': suggestions,
         'current_user': current_user
     }
     
@@ -342,9 +363,15 @@ def user_profile(request, id):
         return redirect("my_profile")
 
     trgt_user = get_object_or_404(User, pk=id)
-    is_friend = request.user.userprofile.friends.filter(id=trgt_user.id).exists()
-    got_friend_request = request.user.userprofile.friend_requests.filter(id=trgt_user.id).exists()
-    sent_friend_request = trgt_user.userprofile.friend_requests.filter(id=request.user.id).exists()
+
+    if request.user.is_authenticated:
+        is_friend = request.user.userprofile.friends.filter(id=trgt_user.id).exists()
+        got_friend_request = request.user.userprofile.friend_requests.filter(id=trgt_user.id).exists()
+        sent_friend_request = trgt_user.userprofile.friend_requests.filter(id=request.user.id).exists()
+    else:
+        is_friend = False
+        got_friend_request = False
+        sent_friend_request = False
     
     context = {
         'all_posts': posts,
@@ -355,7 +382,8 @@ def user_profile(request, id):
         'is_friend': is_friend,
         'got_friend_request': got_friend_request,
         'sent_friend_request': sent_friend_request,
-        'current_user': current_user
+        'current_user': current_user,
+	'not_authenticated': not request.user.is_authenticated
     }
             
     return render(request, 'user_detail.html', context)
@@ -600,8 +628,8 @@ def reply_list(request):
                 r.user = request.user
                 r.post = Post(id=post_id)
                 r.parent = Response(id=parent_id)
-                modified_comment = modify_comment(r.body)  # Call the function to modify the comment
-                r.body = modified_comment
+                # modified_comment = modify_comment(r.body)  # Call the function to modify the comment
+                # r.body = modified_comment
                 r.save()
                 user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
                 user_profile.num_comments += 1
