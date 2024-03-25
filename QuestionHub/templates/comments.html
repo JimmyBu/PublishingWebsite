@@ -39,7 +39,8 @@
             <textarea name="body">{{ comment_detail.body }}</textarea> <!-- Textarea to edit comment -->
             <button type="submit" value="Send" class="submit-button"><i class="fa-solid fa-check"></i></button>
         </form>
-    
+    {%endif%}
+    {% if user.is_authenticated %}
         <!-- JavaScript code for toggling edit form -->
         <script>
             // Get references to DOM elements
