@@ -221,19 +221,24 @@
                 text-decoration: none;
             }        
 
-            .main-menu, .user-menu {
+            .main-menu {
                 display: inline-block;
                 margin: 0;
                 padding: 0;
                 list-style: none;
             }
             
-            .main-menu li, .user-menu li {
+            .main-menu li {
                 display: inline-block;
                 margin-right: 20px;
             }
+
             
-            .main-menu li:last-child, .user-menu li:last-child {
+            .user-menu li {
+                display: inline-block;
+            }
+            
+            .main-menu li:last-child {
                 margin-right: 0;
             }
             .post-Page {
@@ -727,15 +732,19 @@
                 text-decoration: none;
                 cursor: pointer;
             }
+            /* Style the submenu */
             .submenu {
-                display: none;
+                display: none; /* Hide submenu by default */
                 position: absolute;
-                background-color: white;
-                min-width: 120px;
-                box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-                z-index: 1;
+                padding: 0px;
+                text-align: left; /* Align submenu items to the left */
+                list-style-type: none; /* Remove bullet points */
+                background-color: #fff; /* Submenu background color */
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+                border-radius: 5px; /* Add border-radius for rounded corners */
+                width: 90px;
+                z-index: 1; /* Ensure the submenu is on top of other elements */
             }
-            
             .submenu.show {
                 display: block;
             }
@@ -754,36 +763,24 @@
                 background-color: #2980b9; /* Change background color on hover */
             }
             
-            /* Style the submenu */
-            .submenu {
-                display: none; /* Hide submenu by default */
-                position: absolute;
-                background-color: #fff; /* Submenu background color */
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
-                border-radius: 5px; /* Add border-radius for rounded corners */
-                z-index: 1; /* Ensure the submenu is on top of other elements */
-                width: 150px; /* Set a fixed width for the submenu */
-                overflow: hidden; /* Hide any overflow content */
-            }
-            
             /* Position the submenu relative to the username button */
             .username-btn:hover + .submenu {
                 display: block;
-                top: calc(100% + 5px); /* Position the submenu below the username button */
-                left: 0; /* Align the submenu with the left edge of the username button */
-                max-height: calc(100vh - 10px); /* Limit the height of the submenu to fit within the viewport */
-                overflow-y: auto; /* Add vertical scrolling if the submenu exceeds the viewport height */
             }
             
             /* Style the submenu items */
             .submenu li {
-                padding: 8px 12px; /* Padding around the submenu items */
+                padding: 10px 12px; 
+                text-align: center;
                 list-style-type: none; /* Remove bullet points */
+                
             }
+
             
             /* Style the submenu items on hover */
             .submenu li:hover {
                 background-color: #f2f2f2; /* Change background color on hover */
+               
             }
             .karma {
                 font-size: 14px; /* Adjust the font size as needed */
