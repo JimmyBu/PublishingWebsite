@@ -22,7 +22,6 @@ from QuestionHub import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('chat/', views.index, name="index"),
     path('chat/friend/<str:pk>', views.detail, name="chat_detail"),
     path("chat/sent_msg/<str:pk>", views.sentMessages, name="sent_msg"),
     path("chat/rec_msg/<str:pk>", views.receivedMessages, name="rec_msg"),
@@ -31,7 +30,6 @@ urlpatterns = [
     path('send-friend-request/<int:friend_id>/', views.send_friend_request, name='send_friend_request'),
     path('reject-friend-request/<int:friend_id>/', views.reject_friend_request, name='reject_friend_request'),
     path('unfriend/<int:friend_id>/', views.unfriend, name='unfriend'),
-    path('friends/', views.friends_list, name='friends_list'),
     path('register', views.Register, name='register'),
     path('edit-profile-pic', views.editProfilePic, name='edit_pic'),
     path('profile', views.my_profile, name='my_profile'),
