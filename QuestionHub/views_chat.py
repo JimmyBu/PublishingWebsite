@@ -9,16 +9,6 @@ from .forms import ChatMessageForm
 from django.db import IntegrityError
 
 
-def index(request):
-    user = request.user
-    friends = user.userprofile.friends.all()
-    context = {
-        "user": user,
-        "friends": friends,
-    }
-    return render(request, 'mychatapp/index.html', context)
-
-
 def detail(request, pk):
     User = get_user_model()
     friend = User.objects.get(id=pk)
@@ -72,10 +62,3 @@ def chatNotification(request):
         chats = ChatMessage.objects.filter(msg_sender__id=friend.id, msg_receiver=user.user, seen=False)
         arr.append(chats.count())
     return JsonResponse(arr, safe=False)
-
-
-@login_required
-def friends_list(request):
-    user = request.user
-    friends = user.userprofile.get_friends()
-    return render(request, 'mychatapp/friends_list.html', {'friends': friends})
