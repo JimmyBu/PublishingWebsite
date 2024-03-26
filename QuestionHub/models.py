@@ -127,6 +127,6 @@ class Vote(models.Model):
         if self.post:
             return f'{self.user.username} - {self.post.title} - {self.get_vote_type_display()}'
         elif self.comment:
-            return f'{self.user.username} - {self.comment.text} - {self.get_vote_type_display()}'
+            return f'{self.user.username} - {self.comment.body} - {self.get_vote_type_display()}'
 
 Vote._meta.unique_together = (('user', 'post'), ('user', 'comment'))
