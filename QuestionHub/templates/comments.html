@@ -86,11 +86,13 @@
 
     <!--allow replies for comments-->
     <blockquote id="reply-form-{{ comment_detail.id }}" class="reply-form-container" style="display: none;">
-        <form method="POST" action="/reply/" class="reply-form">
+        <form id = "reply-form-1-{{ comment_detail.id }}" method="POST" action="/reply/{{ post.id }}" class="reply-form">
             {% csrf_token %}
             <input type="hidden" name="post" value="{{ post.id }}"/>
             <input type="hidden" name="parent" value="{{ comment_detail.id }}"/>
-            {{ reply.body }}  <!--get from the reply form-->
+            <!-- {{ reply.body }}  get from the reply form -->
+            <textarea id="reply-body-{{ comment_detail.id }}" name="body"></textarea>
+            <input type="hidden" id="suggestion-used-input-{{ comment_detail.id }}" name="suggestion_used">
             <input type="submit" class="reply-button" value="Send"/>
             {% if user.is_authenticated %}
             <!-- Delete button for authenticated users -->

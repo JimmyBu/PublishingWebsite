@@ -37,9 +37,11 @@
         <br>
         <div class="base-comment">   
             {% if user.is_authenticated %}
-            <form id="respond-form" method="POST" action="" class="respond-form">
+            <form method="POST" action="" id="comment-form" class="respond-form">
                 {% csrf_token %}
-                {{ comment.body }} <!--get the comment form-->
+                <!-- {{ comment.body }} get the comment form -->
+                <textarea id="comment-body" name="body"></textarea>
+                <input type="hidden" id="suggestion-used-input" name="suggestion_used">
                 <input type="submit" value="Comment" class="submit-button"/>
             </form>
             {% endif %}
@@ -73,34 +75,72 @@
         </div>
     </div>
 
-    <!-- JavaScript code for displaying and hiding the modal -->
-    <script>
-        function closeModal() {
-            var modal = document.getElementById('modal');
-            modal.style.display = 'none';
-        }
+        <!-- JavaScript code for displaying and hiding the modal -->
+        {% if not comment_type %}
+        <script>
+            function closeModal() {
+                var modal = document.getElementById('modal');
+                modal.style.display = 'none';
+            }
 
-        function useSuggestion(suggestion, suggestionUsed) {
-            var suggestionText = suggestion.replace(/^\d+\.\s*/, '');
+            function useSuggestion(suggestion, suggestionUsed) {
+                var suggestionText = suggestion.replace(/^\d+\.\s*/, '');
+                var c_parent = {{ curr_parent }};
 
-            var commentField = document.getElementById('comment-body');
-            commentField.value = suggestionText;
+                var commentField = document.getElementById('reply-body-' + c_parent);
+                alert(c_parent);
+                commentField.value = suggestionText;
 
-            var suggestionUsedInput = document.getElementById('suggestion-used-input');
-            suggestionUsedInput.value = suggestionUsed;
+                var suggestionUsedInput = document.getElementById('suggestion-used-input-' + c_parent);
+                suggestionUsedInput.value = suggestionUsed;
 
-            // Automatically submit the form
-            var form = document.getElementById('comment-form');
-            form.submit();
+                // var parentField = document.getElementsByName('parent');
+                // parentField.value = {{ curr_parent }};
 
-            closeModal(); // Close the modal after selecting a suggestion
-        }
+                // Automatically submit the form
+                var form = document.getElementById('reply-form-1-' + c_parent);
+                form.submit();
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var modal = document.getElementById('modal');
-            modal.style.display = 'block';
-        });
-    </script>
+                closeModal(); // Close the modal after selecting a suggestion
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var modal = document.getElementById('modal');
+                modal.style.display = 'block';
+            });
+        </script>
+        {% endif %}
+
+        {% if comment_type %}
+        <script>
+            function closeModal() {
+                var modal = document.getElementById('modal');
+                modal.style.display = 'none';
+            }
+
+            function useSuggestion(suggestion, suggestionUsed) {
+                var suggestionText = suggestion.replace(/^\d+\.\s*/, '');
+
+                var commentField = document.getElementById('comment-body');
+                commentField.value = suggestionText;
+
+                var suggestionUsedInput = document.getElementById('suggestion-used-input');
+                suggestionUsedInput.value = suggestionUsed;
+
+                // Automatically submit the form
+                var form = document.getElementById('comment-form');
+                form.submit();
+
+                closeModal(); // Close the modal after selecting a suggestion
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var modal = document.getElementById('modal');
+                modal.style.display = 'block';
+            });
+        </script>
+        {% endif %}
+
     {% endif %}
 
 </div>
