@@ -1,7 +1,8 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import JsonResponse
 from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
-from .models import Post, Response, Topic, UserProfile, Vote
+from .models import Post, Response, Topic, UserProfile, Vote, ChatMessage
 from django.contrib.auth.models import User
 from .admin import CommentAdmin
 from .views import Home, post_detail, upvote_comment, upvote_post
@@ -774,6 +775,53 @@ class TestViews(TestCase):
         # Check if the upvote is removed, a downvote is added, and scores are updated
         self.post1.refresh_from_db()
         self.assertEqual(self.post1.score, initial_score - 2)
+
+    def test_chat(self):
+        #first add each other as friends
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
+        self.client.force_login(self.user2)
+        response = self.client.post(reverse('add_friend', kwargs={'friend_id': self.user.id}))
+
+        #now go to chat, as user2
+        response = self.client.get(reverse('chat_detail', kwargs={'pk': self.user.id}))
+        self.assertEqual(response.status_code, 200)
+
+        #send a message to user
+        send_url = reverse('sent_msg', kwargs={'pk': self.user.id})
+        data = {'msg': "First test message from user2"}
+        send_msg_response = self.client.post(send_url, data, content_type='application/json')
+        self.assertEqual(send_msg_response.status_code, 200)
+        last_msg = ChatMessage.objects.filter(msg_sender=self.user2, msg_receiver=self.user).last()
+        self.assertEqual(last_msg.body, "First test message from user2")
+        self.assertFalse(last_msg.seen)
+        notification_url = reverse('notification')
+        notification_response = self.client.get(notification_url)
+        self.assertIsInstance(notification_response, JsonResponse)
+        data = notification_response.json()
+        self.assertEqual(data[0], 0) #user only has one friend, so data only has 1 element which represents user2
+
+        #view the message as user
+        self.client.force_login(self.user)
+        notification_url = reverse('notification')
+        notification_response = self.client.get(notification_url)
+        self.assertIsInstance(notification_response, JsonResponse)
+        data = notification_response.json()
+        self.assertEqual(data[0], 1)
+
+        rec_url = reverse('rec_msg', kwargs={'pk': self.user2.id})
+        rec_msg_response = self.client.get(rec_url)
+        self.assertEqual(rec_msg_response.status_code, 200)
+        self.assertIsInstance(rec_msg_response, JsonResponse)
+        data = rec_msg_response.json()
+        self.assertEqual(data[-1], "First test message from user2")
+        last_msg = ChatMessage.objects.filter(msg_sender=self.user2, msg_receiver=self.user).last()
+        self.assertEqual(last_msg.body, "First test message from user2")
+        self.assertTrue(last_msg.seen)
+
+
+
+
 
 
 
