@@ -23,8 +23,8 @@ from QuestionHub import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat/friend/<int:pk>', views.detail, name="chat_detail"),
-    path("chat/sent_msg/<str:pk>", views.sentMessages, name="sent_msg"),
-    path("chat/rec_msg/<str:pk>", views.receivedMessages, name="rec_msg"),
+    path("chat/sent_msg/<int:pk>", views.sentMessages, name="sent_msg"),
+    path("chat/rec_msg/<int:pk>", views.receivedMessages, name="rec_msg"),
     path("chat/notification", views.chatNotification, name="notification"),
     path('add-friend/<int:friend_id>/', views.add_friend, name='add_friend'),
     path('send-friend-request/<int:friend_id>/', views.send_friend_request, name='send_friend_request'),
