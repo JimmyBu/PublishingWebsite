@@ -85,6 +85,8 @@ def modify_comment(comment):
     return modified_comment
 
 def post_detail(request, id):
+    print(request)
+    print(request.POST)
     post = Post.objects.get(id=id)
     posts = Post.objects.all().order_by("timestamp")
     current_user = request.user
@@ -104,35 +106,71 @@ def post_detail(request, id):
     
     moderation_required = False
     suggestions = []
+    comment_type = ""
+    curr_parent = ''
     if request.method == "POST":
+        print('parent' in request.POST)
         suggestion_used = request.POST.get('suggestion_used')
         try:
-            comment = CommentForm(request.POST)
-            if comment.is_valid():  # check the form is valid
-                if suggestion_used != 'true':
-                    c = comment.save(commit=False)  # commit = false delay the save
-                    c.user = request.user  # fetch the current user
-                    c.post = Post(id=id)  # fetch the current post
-                    modified_comment = modify_comment(c.body)  # Call the function to modify the comment
-                    if modified_comment != c.body:
-                        moderation_required = True
-                        suggestions = modified_comment.split("\n")
+            if 'parent' in request.POST:
+                reply = ReplyForm(request.POST)
+                if reply.is_valid():  # check the form is valid
+                    if suggestion_used != 'true':
+                        r = reply.save(commit=False)  # commit = false delay the save
+                        r.user = request.user  # fetch the current user
+                        r.post = Post(id=id)  # fetch the current post
+                        r.parent = Response(id=request.POST.get('parent'))
+                        modified_comment = modify_comment(r.body)  # Call the function to modify the comment
+                        if modified_comment != r.body:
+                            moderation_required = True
+                            suggestions = modified_comment.split("\n")
+                            comment_type = False
+                            curr_parent = request.POST.get('parent')
+                        else:
+                            r.body = modified_comment
+                            r.save()  # then save
+                            user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+                            user_profile.num_comments += 1
+                            user_profile.save()
+                            redirect('/post/' + str(id) + '/' + str(r.id))  # parse the post_id and the comment_id
                     else:
-                        c.body = modified_comment
+                        r = reply.save(commit=False)  # commit = false delay the save
+                        r.user = request.user  # fetch the current user
+                        r.post = Post(id=id)  # fetch the current post
+                        r.parent = Response(id=request.POST.get('parent'))
+                        r.save()  # then save
+                        user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+                        user_profile.num_comments += 1
+                        user_profile.save()
+                        redirect('/post/' + str(id) + '/' + str(r.id))  # parse the post_id and the comment_id
+            else:
+                comment = CommentForm(request.POST)
+                if comment.is_valid():  # check the form is valid
+                    if suggestion_used != 'true':
+                        c = comment.save(commit=False)  # commit = false delay the save
+                        c.user = request.user  # fetch the current user
+                        c.post = Post(id=id)  # fetch the current post
+                        modified_comment = modify_comment(c.body)  # Call the function to modify the comment
+                        if modified_comment != c.body:
+                            moderation_required = True
+                            suggestions = modified_comment.split("\n")
+                            comment_type = True
+                        else:
+                            c.body = modified_comment
+                            c.save()  # then save
+                            user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+                            user_profile.num_comments += 1
+                            user_profile.save()
+                            redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
+                    else:
+                        c = comment.save(commit=False)  # commit = false delay the save
+                        c.user = request.user  # fetch the current user
+                        c.post = Post(id=id)  # fetch the current post
                         c.save()  # then save
                         user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
                         user_profile.num_comments += 1
                         user_profile.save()
                         redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
-                else:
-                    c = comment.save(commit=False)  # commit = false delay the save
-                    c.user = request.user  # fetch the current user
-                    c.post = Post(id=id)  # fetch the current post
-                    c.save()  # then save
-                    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-                    user_profile.num_comments += 1
-                    user_profile.save()
-                    redirect('/post/' + str(id) + '/' + str(c.id))  # parse the post_id and the comment_id
 
         except Exception as e:
             raise e
@@ -147,7 +185,9 @@ def post_detail(request, id):
         'users': users,
         'moderation_required': moderation_required,
         'suggestions': suggestions,
-        'current_user': current_user
+        'current_user': current_user,
+        'comment_type': comment_type,
+        'curr_parent' : curr_parent
     }
     
     if user_vote:
@@ -163,6 +203,7 @@ def post_detail(request, id):
     user_profile.total_views += 1
     user_profile.save()
     
+    print(context)
     return render(request, 'post_detail.html', context)
 
 def topic_detail(request, id):
@@ -618,6 +659,8 @@ def delete_comment(request, id, delete1, delete2):
 
 @login_required(login_url='register')
 def reply_list(request):
+    print(request)
+    print(request.POST)
     if request.method == "POST":
         try:
             reply = ReplyForm(request.POST)
