@@ -70,8 +70,6 @@ def modify_comment(comment):
         messages=[
             {
                 "role": "user",
-                # "content": "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user, and modify the comment to replace those bad words. Example: Comment='what is happening my brothers' Since no modification is needed, Result='what is happening my brothers'. Also just give the result, do not give the reasoning as to what you identified. Now please moderate this comment:",
-                # "content": "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user. Example: Comment='what is happening my brothers' Since no modification is needed, Result='what is happening my brothers'. Another example: Comment='Damn you!' Since this moderation, return the word 'MODERATE'. Also just give the result, do not give the reasoning as to what you identified. Now please moderate this comment:",
                 "content" : "You are a text moderator for a forum site. Your job is to identify if there is any profanity or vulgarity in a comment left by a user. You will be given a comment as an input. Now there are two scenarios. First scenario, you identify that there is NO profanity or vulgarity in the comment. You return the comment as is without modifications. Second scenario, you identify that there is profanity or vulgarity in the comment. You will now suggest three alternate comments the user can enter instead. The suggestions should be close to the original comment, you should focus on replacing the bad words with good ones or removing them outright, as long as the comment still makes sense grammatically. Examples: Input: Wow Output: Wow Input: I fucking hate you Output: 1. I dislike you 2. I despise you. 3. I do not like you. Note:  Please do not give your identification as in if you found profanity/vulgarity or not, just give either the suggestions or the original comment. Additional Note: Please give suggestions so that if those suggestions were given as input, there would be no moderation required if those suggestions were used as input again. Now please moderate this comment:",
             },
             {
@@ -81,12 +79,9 @@ def modify_comment(comment):
         ],
     )
     modified_comment = response.choices[0].message.content
-    # print(response.choices[0].message.content)
     return modified_comment
 
 def post_detail(request, id):
-    print(request)
-    print(request.POST)
     post = Post.objects.get(id=id)
     posts = Post.objects.all().order_by("timestamp")
     current_user = request.user
@@ -109,7 +104,6 @@ def post_detail(request, id):
     comment_type = ""
     curr_parent = ''
     if request.method == "POST":
-        print('parent' in request.POST)
         suggestion_used = request.POST.get('suggestion_used')
         try:
             if 'parent' in request.POST:
@@ -203,7 +197,6 @@ def post_detail(request, id):
     user_profile.total_views += 1
     user_profile.save()
     
-    print(context)
     return render(request, 'post_detail.html', context)
 
 def topic_detail(request, id):
@@ -656,33 +649,6 @@ def delete_comment(request, id, delete1, delete2):
     user_profile.save()
 
     return redirect(original_url)
-
-@login_required(login_url='register')
-def reply_list(request):
-    print(request)
-    print(request.POST)
-    if request.method == "POST":
-        try:
-            reply = ReplyForm(request.POST)
-            if reply.is_valid():
-                post_id = request.POST.get('post')
-                parent_id = request.POST.get('parent')
-                r = reply.save(commit=False)
-                r.user = request.user
-                r.post = Post(id=post_id)
-                r.parent = Response(id=parent_id)
-                # modified_comment = modify_comment(r.body)  # Call the function to modify the comment
-                # r.body = modified_comment
-                r.save()
-                user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-                user_profile.num_comments += 1
-                user_profile.save()
-                redirect('/post/' + str(post_id) + '/' + str(r.id))
-
-        except Exception as e:
-            raise e
-
-    return redirect('/post/' + str(post_id) + '/' + str(r.id))
 
 @login_required
 def friends_list(request):
