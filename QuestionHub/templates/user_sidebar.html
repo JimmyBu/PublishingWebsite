@@ -1,6 +1,6 @@
 {% if current_page == 'post' or current_page == 'topic_detail' %}
 <div class="user-sidebar">
-    {% if is_authenticated %}
+    {% if is_authenticated or current_user.is_authenticated %}
     <h2>Friends</h2>
     <ul>
         {% for friend in friends %}

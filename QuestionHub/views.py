@@ -225,6 +225,9 @@ def topic_detail(request, id):
         for vote in user_votes:
           post_vote_list.append(vote.post)
     
+        friends_list = request.user.userprofile.get_friends()
+    else:
+        friends_list = None
     
     context = {
         'current_ordering': ordering,
@@ -233,6 +236,7 @@ def topic_detail(request, id):
         'current_page' : 'topic_detail',
         'topic' : topic,
         'users' : users,
+        'friends': friends_list,
         'trending_topics': trending_topics,
         'all_posts' : filtered_posts,
         'current_user': current_user
