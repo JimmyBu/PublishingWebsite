@@ -7,11 +7,11 @@
 
     <div class="chat-area" id="chat-area">
         {% for chat in chats %}
-            {% if chat.msg_sender == user %}
+            {% if chat.msg_sender == user and chat.msg_receiver == friend %}
                 <div class="chat-sent box">
                     {{ chat }}
                 </div>
-            {% else %}
+            {% elif chat.msg_sender == friend and chat.msg_receiver == user %}
                 <div class="chat-box-received">
                     {{ chat }}
                 </div>
