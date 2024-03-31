@@ -2,12 +2,17 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import JsonResponse
 from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
+from .forms import *
+from .views_chat import *
 from .models import Post, Response, Topic, UserProfile, Vote, ChatMessage
 from django.contrib.auth.models import User
 from .admin import CommentAdmin
 from .views import Home, post_detail, upvote_comment, upvote_post
 from django.contrib.admin.sites import AdminSite
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
+import json
+from django.db import IntegrityError
+
 
 class TestViews(TestCase):
     def setUp(self):
@@ -38,12 +43,13 @@ class TestViews(TestCase):
         self.vote = Vote.objects.create(user=self.user, comment=self.response)
         # Data for creating a response
         self.response_data = {
-            'post': 1, 
-            'parent': 1, 
-            'body': 'Test comment body' 
-        }  
-    
-    #Test homepage and check if posts load
+            'post': 1,
+            'parent': 1,
+            'body': 'Test comment body'
+        }
+
+        # Test homepage and check if posts load
+
     def test_home(self):
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
@@ -59,16 +65,16 @@ class TestViews(TestCase):
             self.assertEqual(response.context['post'], self.post1)
             self.assertContains(response, self.response.body)
 
-    #Test topic detail page
+    # Test topic detail page
     def test_topic_detail(self):
         response = self.client.get(reverse('topic_detail', args=[self.topic1.id]))
         self.assertEqual(response.status_code, 200)
-        #Check if topic1 has loaded and all of its posts
+        # Check if topic1 has loaded and all of its posts
         self.assertEqual(response.context['topic'], self.topic1)
         self.assertContains(response, self.post1.title)
         self.assertNotContains(response, self.post2.title)
 
-    #Test user registration page
+    # Test user registration page
     def test_register(self):
         response = self.client.get(reverse('register'))
         self.assertEqual(response.status_code, 200)
@@ -78,7 +84,7 @@ class TestViews(TestCase):
                                               'password2': 'Password123!'})
         self.assertEqual(response_register.status_code, 302)  # Check if registration was successful
         user_exists = User.objects.filter(username='testuser1').exists()
-        #Check if user was created
+        # Check if user was created
         self.assertTrue(user_exists)
         # Log in the newly registered user
         response_login = self.client.post(reverse('login'),
@@ -91,45 +97,46 @@ class TestViews(TestCase):
         # Check if the user profile page loads successfully and it's for the correct user
         self.assertEqual(response_profile.status_code, 302)
 
-    #Test user profile page
+    # Test user profile page
     def test_user_profile(self):
         response = self.client.get(reverse('user_profile', kwargs={'id': self.user.id}))
         self.assertEqual(response.status_code, 200)
-        #Check if correct user's page loaded
+        # Check if correct user's page loaded
         self.assertEqual(response.context['user'], self.user)
         self.assertTrue(response.context['not_authenticated'])
 
-        #now try viewing page after signing in - should redirect to my_profile
+        # now try viewing page after signing in - should redirect to my_profile
         self.client.force_login(self.user)
         response = self.client.get(reverse('user_profile', kwargs={'id': self.user.id}))
         self.assertRedirects(response, reverse('my_profile'), status_code=302)
 
-        #now try viewing page after signing in as a different user
+        # now try viewing page after signing in as a different user
         self.client.force_login(self.user2)
         profile2 = UserProfile.objects.get(user=self.user2)
         profile = UserProfile.objects.get(user=self.user)
         response = self.client.get(reverse('user_profile', kwargs={'id': self.user.id}))
         self.assertFalse(response.context['not_authenticated'])
         self.assertEqual(response.context['is_friend'], profile2.friends.filter(id=self.user.id).exists())
-        self.assertEqual(response.context['sent_friend_request'], profile2.friend_requests.filter(id=self.user.id).exists())
+        self.assertEqual(response.context['sent_friend_request'],
+                         profile2.friend_requests.filter(id=self.user.id).exists())
         self.assertEqual(response.context['got_friend_request'],
                          profile.friend_requests.filter(id=self.user2.id).exists())
 
-    #Test my profile page
+    # Test my profile page
     def test_my_profile(self):
-        #if not logged in
+        # if not logged in
         response = self.client.get(reverse('my_profile'))
-        self.assertEqual(response.status_code, 302) #should redirect to login
+        self.assertEqual(response.status_code, 302)  # should redirect to login
 
-        #if logged in
+        # if logged in
         self.client.force_login(self.user)
         response = self.client.get(reverse('my_profile'))
         self.assertEqual(response.status_code, 200)
-        #Check if user's own page correctly loaded
+        # Check if user's own page correctly loaded
         self.assertEqual(response.context['user'], self.user)
         self.assertTrue('bio_form' in response.context)
 
-    #Test changing user bio
+    # Test changing user bio
     def test_change_bio(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('my_profile'), {'bio': 'New bio'})
@@ -137,7 +144,7 @@ class TestViews(TestCase):
         updated_profile = UserProfile.objects.get(user=self.user)
         self.assertEqual(updated_profile.bio, 'New bio')
 
-    #test edit profile pic
+    # test edit profile pic
     def test_editProfilePic(self):
         self.client.force_login(self.user)
         image_path = 'QuestionHub/static/img/default_profile_pic.png'
@@ -149,20 +156,20 @@ class TestViews(TestCase):
         updated_profile = UserProfile.objects.get(user=self.user)
         self.assertIsNotNone(updated_profile.pic)
 
-    #test sending friend request
+    # test sending friend request
     def test_send_friend_request(self):
-        #test sending a friend request:
+        # test sending a friend request:
         self.client.force_login(self.user)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
         self.assertEqual(response.status_code, 200)
 
-        #send more than one friend request, should still get a 200 status:
+        # send more than one friend request, should still get a 200 status:
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
         self.assertEqual(response.status_code, 200)
         updated_profile2 = UserProfile.objects.get(user=self.user2)
         self.assertTrue(updated_profile2.friend_requests.filter(id=self.user.id).exists())
 
-        #test sending friend request simultaneously:
+        # test sending friend request simultaneously:
         self.client.force_login(self.user2)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user.id}))
         self.assertEqual(response.status_code, 200)
@@ -173,7 +180,7 @@ class TestViews(TestCase):
         self.assertTrue(updated_profile.friends.filter(id=self.user2.id).exists())
         self.assertFalse(updated_profile.friend_requests.filter(id=self.user2.id).exists())
 
-    #test accepting a friend request that was received
+    # test accepting a friend request that was received
     def test_accept_friend_request(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
@@ -189,7 +196,7 @@ class TestViews(TestCase):
         self.assertTrue(updated_profile.friends.filter(id=self.user2.id).exists())
         self.assertFalse(updated_profile.friend_requests.filter(id=self.user2.id).exists())
 
-    #cancel a friend request already sent
+    # cancel a friend request already sent
     def test_cancel_friend_request(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
@@ -199,7 +206,7 @@ class TestViews(TestCase):
         updated_profile2 = UserProfile.objects.get(user=self.user2)
         self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
 
-    #reject a friend request that was received
+    # reject a friend request that was received
     def test_reject_friend_request(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
@@ -210,7 +217,7 @@ class TestViews(TestCase):
         updated_profile2 = UserProfile.objects.get(user=self.user2)
         self.assertFalse(updated_profile2.friend_requests.filter(id=self.user.id).exists())
 
-    #unfriending someone after accepting their friend request
+    # unfriending someone after accepting their friend request
     def test_unfriend(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
@@ -229,7 +236,7 @@ class TestViews(TestCase):
         self.assertFalse(updated_profile.friends.filter(id=self.user2.id).exists())
         self.assertFalse(updated_profile.friend_requests.filter(id=self.user2.id).exists())
 
-    #Test logging in
+    # Test logging in
     def test_login(self):
         self.assertNotIn('_auth_user_id', self.client.session)
         response = self.client.get(reverse('login'))
@@ -238,8 +245,8 @@ class TestViews(TestCase):
         response = self.client.post(reverse('login'), {'username': 'testuser', 'password': 'Password123!'})
         self.assertRedirects(response, reverse('home'), status_code=302)  # Redirects to home upon successful login
         self.assertIn('_auth_user_id', self.client.session)
-        
-    #Test logging out
+
+    # Test logging out
     def test_logout(self):
         self.client.login(username='testuser', password='Password123!')
         self.assertIn('_auth_user_id', self.client.session)
@@ -281,8 +288,8 @@ class TestViews(TestCase):
     # Test replying to a post
     def test_reply(self):
         self.client.login(username='testuser', password='Password123!')
-        response = self.client.post(reverse('reply'), self.response_data)
-        self.assertEqual(response.status_code, 302)
+        response = self.client.post(reverse('reply', args=[1]), self.response_data)
+        self.assertEqual(response.status_code, 200)
         created_reply = Response.objects.filter(body='Test comment body').first()
         self.assertIsNotNone(created_reply)
         # Check if reply was created
@@ -291,6 +298,120 @@ class TestViews(TestCase):
         self.profile.refresh_from_db()
         # Check if user's number of comments increased
         self.assertEqual(self.profile.num_comments, 1)
+
+    def test_post_detail_modified_comment(self):
+        self.client.login(username='testuser', password='Password123!')
+        self.response_data = {
+            'post': self.post1.id,
+            'parent': 1,
+            'body': 'Test comment body'
+        }
+        request = self.factory.post(reverse('post_detail', kwargs={'id': self.post1.id}), self.response_data)
+        request.user = self.user
+        with patch('QuestionHub.views.modify_comment') as mock_modify_comment:
+            mock_modify_comment.return_value = 'Modified comment'
+            with patch('QuestionHub.forms.ReplyForm') as mock_reply_form:
+                mock_reply_instance = MagicMock()
+                mock_reply_form.return_value = mock_reply_instance
+                mock_reply_instance.is_valid.return_value = True
+                mock_reply_instance.save.return_value = MagicMock(body='Original comment')
+                response = post_detail(request, id=self.post1.id)
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(mock_modify_comment.called)
+                self.assertTrue(mock_reply_instance.user, self.user)
+                self.assertTrue(mock_reply_instance.post, self.post1)
+                self.assertTrue(mock_reply_instance.parent, self.response)
+                self.assertEqual(UserProfile.objects.get(user=self.user).num_comments, 0)
+
+    def test_post_detail_no_modified_comment(self):
+        """
+        Test post_detail view when modified_comment is equal to r.body
+        """
+        self.client.login(username='testuser', password='Password123!')
+        self.response_data = {
+            'post': self.post1.id,
+            'parent': 1,
+            'body': 'Test comment body'
+        }
+        request = self.factory.post(reverse('post_detail', kwargs={'id': self.post1.id}), self.response_data)
+        request.user = self.user
+        with patch('QuestionHub.views.modify_comment') as mock_modify_comment:
+            mock_modify_comment.return_value = 'Original comment'
+            with patch('QuestionHub.forms.CommentForm') as mock_comment_form:
+                mock_comment_instance = MagicMock()
+                mock_comment_form.return_value = mock_comment_instance
+                mock_comment_instance.is_valid.return_value = True
+                mock_comment_instance.save.return_value = MagicMock()
+                response = post_detail(request, id=self.post1.id)
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(mock_modify_comment.called)
+                self.assertTrue(mock_comment_instance.post, self.post1)
+                self.assertEqual(UserProfile.objects.get(user=self.user).num_comments, 0)
+
+    def test_post_detail_reply_saved_with_suggestion(self):
+        """
+        Test post_detail view when a reply is saved with a suggestion.
+        """
+        self.client.login(username='testuser', password='Password123!')
+        self.response_data = {
+            'post': self.post1.id,
+            'parent': 1,
+            'body': 'Test reply body',
+            'suggestion_used': 'true'  # Indicate that a suggestion is used
+        }
+        request = self.factory.post(reverse('post_detail', kwargs={'id': self.post1.id}), self.response_data)
+        request.user = self.user
+        with patch('QuestionHub.models.Response.save') as mock_reply_save:
+            mock_reply_instance = MagicMock()
+            mock_reply_save.return_value = mock_reply_instance
+            mock_reply_instance.user = self.user
+            mock_reply_instance.post = self.post1
+            response = post_detail(request, id=self.post1.id)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(mock_reply_save.called)
+
+    def test_post_detail_comment_with_modified_comment(self):
+        """
+        Test post_detail view when a comment is saved with a modified comment.
+        """
+        self.client.login(username='testuser', password='Password123!')
+        self.comment_data = {
+            'post': self.post1.id,
+            'body': 'Test comment body',
+            'suggestion_used': 'false'  # Indicate that no suggestion is used
+        }
+        request = self.factory.post(reverse('post_detail', kwargs={'id': self.post1.id}), self.comment_data)
+        request.user = self.user  # Assigning the user to the request object
+        with patch('QuestionHub.models.Response.save') as mock_comment_save:
+            mock_comment_instance = MagicMock()
+            mock_comment_save.return_value = mock_comment_instance
+            mock_comment_instance.user = self.user
+            mock_comment_instance.post = self.post1
+            mock_comment_instance.body = 'Modified comment'  # Simulate modified comment
+            response = post_detail(request, id=self.post1.id)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(mock_comment_save.called)
+
+    def test_post_detail_comment_with_original_comment(self):
+        """
+        Test post_detail view when a comment is saved with the original comment.
+        """
+        self.client.login(username='testuser', password='Password123!')
+        self.comment_data = {
+            'post': self.post1.id,
+            'body': 'Test comment body',
+            'suggestion_used': 'true'  # Indicate that a suggestion is used
+        }
+        request = self.factory.post(reverse('post_detail', kwargs={'id': self.post1.id}), self.comment_data)
+        request.user = self.user  # Assigning the user to the request object
+        with patch('QuestionHub.models.Response.save') as mock_comment_save:
+            mock_comment_instance = MagicMock()
+            mock_comment_save.return_value = mock_comment_instance
+            mock_comment_instance.user = self.user
+            mock_comment_instance.post = self.post1
+            response = post_detail(request, id=self.post1.id)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(mock_comment_save.called)
 
     def test_response_str(self):
         # Assuming self.post1 exists and is a valid Post object
@@ -777,17 +898,17 @@ class TestViews(TestCase):
         self.assertEqual(self.post1.score, initial_score - 2)
 
     def test_chat(self):
-        #first add each other as friends
+        # first add each other as friends
         self.client.force_login(self.user)
         response = self.client.post(reverse('send_friend_request', kwargs={'friend_id': self.user2.id}))
         self.client.force_login(self.user2)
         response = self.client.post(reverse('add_friend', kwargs={'friend_id': self.user.id}))
 
-        #now go to chat, as user2
+        # now go to chat, as user2
         response = self.client.get(reverse('chat_detail', kwargs={'pk': self.user.id}))
         self.assertEqual(response.status_code, 200)
 
-        #send a message to user
+        # send a message to user
         send_url = reverse('sent_msg', kwargs={'pk': self.user.id})
         data = {'msg': "First test message from user2"}
         send_msg_response = self.client.post(send_url, data, content_type='application/json')
@@ -799,9 +920,9 @@ class TestViews(TestCase):
         notification_response = self.client.get(notification_url)
         self.assertIsInstance(notification_response, JsonResponse)
         data = notification_response.json()
-        self.assertEqual(data[0], 0) #user only has one friend, so data only has 1 element which represents user2
+        self.assertEqual(data[0], 0)  # user only has one friend, so data only has 1 element which represents user2
 
-        #view the message as user
+        # view the message as user
         self.client.force_login(self.user)
         notification_url = reverse('notification')
         notification_response = self.client.get(notification_url)
@@ -819,9 +940,38 @@ class TestViews(TestCase):
         self.assertEqual(last_msg.body, "First test message from user2")
         self.assertTrue(last_msg.seen)
 
+    def test_get_friends(self):
+        self.client.login(username='testuser', password='Password123!')
+        friend1 = User.objects.create_user(username='friend1', password='Password123!')
+        friend2 = User.objects.create_user(username='friend2', password='Password123!')
+        self.profile.add_friend(friend1)
+        self.profile.add_friend(friend2)
 
+        # Call get_friends method
+        friends = self.profile.get_friends()
 
+        # Check if the returned value contains the added friends
+        self.assertEqual(list(friends), [friend1, friend2])
 
+    def test_detail_view_post_method(self):
+        # Prepare form data
+        form_data = {'body': 'Test message body'}
 
+        # Login the user
+        self.client.login(username='testuser', password='Password123!')
 
+        # Prepare request
+        request = self.factory.post('/detail/1', data=form_data)
+        request.user = self.user
 
+        # Call the view function
+        response = detail(request, pk=self.user2.id)
+
+        # Assertions
+        self.assertEqual(response.status_code, 302)  # Check if it redirects after saving the message
+
+        # Check if the message was saved in the database
+        saved_message = ChatMessage.objects.first()
+        self.assertEqual(saved_message.msg_sender, self.user)
+        self.assertEqual(saved_message.msg_receiver, self.user2)
+        self.assertEqual(saved_message.body, 'Test message body')

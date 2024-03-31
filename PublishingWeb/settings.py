@@ -25,10 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ww+(u3+#lgb55*o_av07dqnet_c#(zt$2q5%vp@w7y1aq94kbk'
 
 
-API_KEY_FILE = os.path.join(BASE_DIR, 'API_KEY.txt')
+API_KEY = os.environ.get('API_KEY')
 
-with open(API_KEY_FILE, 'r') as f:
-    API_KEY = f.read().strip()
+if not API_KEY:
+    API_KEY_FILE = os.path.join(BASE_DIR, 'API_KEY.txt')
+
+    if os.path.exists(API_KEY_FILE):
+        with open(API_KEY_FILE, 'r') as f:
+            API_KEY = f.read().strip()
 
 openai.api_key = API_KEY
 
