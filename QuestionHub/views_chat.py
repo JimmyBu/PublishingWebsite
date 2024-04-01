@@ -24,7 +24,7 @@ def detail(request, pk):
             chat_message.msg_sender = user
             chat_message.msg_receiver = friend
             chat_message.save()
-            return redirect("detail", pk=friend.id)
+            return redirect("chat_detail", pk=friend.id)
     context = {
         "friend": friend,
         "form": form,
