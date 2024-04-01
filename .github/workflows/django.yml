@@ -1,0 +1,37 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+      env:
+        OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
+        SKIP_EDGE_TESTS: 'true'  # Set an environment variable to indicate skipping Edge tests
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt Pillow
+    - name: Run Tests
+      run: |
+        if [ "${SKIP_EDGE_TESTS}" != "true" ]; then
+          python manage.py test
+        else
+          python manage.py test --exclude-tag edge-tests
+        fi
